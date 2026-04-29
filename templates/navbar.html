@@ -1,9 +1,14 @@
 <nav>
-    <a href="/">Home</a> 
-    <a href="/fixture">Fixture</a> 
-    <a href="/contacto">Contacto</a> 
-    <a href="/registro">Registro</a>
-    <a href="/login">Login</a>
+  <a href="{{ url_for('index') }}">Home</a>
+  <a href="{{ url_for('fixture') }}">Fixture</a>
+  <a href="{{ url_for('contacto') }}">Contacto</a>
 
+  {% if usuario_actual %}
+    <span>Hola, {{ usuario_actual }}</span>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  {% else %}
+    <a href="{{ url_for('registro') }}">Registro</a>
+    <a href="{{ url_for('login') }}">Login</a>
+  {% endif %}
 </nav>
 <hr>

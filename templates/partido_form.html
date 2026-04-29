@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} partido - Copa Renault{% endblock %}
+
+{% block body %}
+  <h1>{{ accion }} partido</h1>
+
+  <form method="post">
+    <label>
+      Equipo local
+      <input type="text" name="equipo_local" value="{{ partido.equipo_local if partido else '' }}" required>
+    </label>
+    <label>
+      Equipo visitante
+      <input type="text" name="equipo_visitante" value="{{ partido.equipo_visitante if partido else '' }}" required>
+    </label>
+    <label>
+      Fecha
+      <input type="date" name="fecha" value="{{ partido.fecha if partido else '' }}" required>
+    </label>
+
+    {% if partido %}
+      <label>
+        Goles local
+        <input type="number" name="goles_local" min="0" value="{{ partido.goles_local if partido.goles_local is not none else '' }}">
+      </label>
+      <label>
+        Goles visitante
+        <input type="number" name="goles_visitante" min="0" value="{{ partido.goles_visitante if partido.goles_visitante is not none else '' }}">
+      </label>
+    {% endif %}
+
+    <button type="submit">Guardar</button>
+    <a href="{{ url_for('fixture') }}">Cancelar</a>
+  </form>
+{% endblock %}

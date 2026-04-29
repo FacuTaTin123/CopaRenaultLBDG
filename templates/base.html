@@ -1,6 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Copa Renault{% endblock %}</title>
+</head>
 <body>
   {% include "navbar.html" %}
 
-  {% block body %}
-  {% endblock %}
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+      <section>
+        {% for categoria, mensaje in mensajes %}
+          <p class="{{ categoria }}">{{ mensaje }}</p>
+        {% endfor %}
+      </section>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block body %}{% endblock %}
+  </main>
 </body>
+</html>

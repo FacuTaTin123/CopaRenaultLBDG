@@ -1,25 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Fixture - Copa Renault{% endblock %}
 
 {% block body %}
-<h1>Fixture</h1>
+  <h1>Fixture</h1>
 
-{% if session.es_admin %}
-  <a href="/admin/crear_partido">Crear partido</a>
-{% endif %}
+  {% if session.es_admin %}
+    <p><a href="{{ url_for('crear_partido') }}">Crear partido</a></p>
+  {% endif %}
 
-<ul>
-  {% for partido in partidos %}
-    <li>
-      {{ partido.equipo_local }} vs {{ partido.equipo_visitante }}
-      - {{ partido.fecha }}
+  {% if partidos %}
+    <ul>
+      {% for partido in partidos %}
+        <li>
+          {{ partido.equipo_local }} vs {{ partido.equipo_visitante }}
+          - {{ partido.fecha }}
 
-      {% if partido.goles_local is not none %}
-        | {{ partido.goles_local }} - {{ partido.goles_visitante }}
-      {% endif %}
+          {% if partido.goles_local is not none and partido.goles_visitante is not none %}
+            | {{ partido.goles_local }} - {{ partido.goles_visitante }}
+          {% endif %}
 
-      {% if session.es_admin %}
-        <a href="/admin/editar_partido/{{ partido.id }}">Editar</a>
-      {% endif %}
-    </li>
-  {% endfor %}
-</ul>
+          {% if session.es_admin %}
+            <a href="{{ url_for('editar_partido', partido_id=partido.id) }}">Editar</a>
+            <form method="post" action="{{ url_for('eliminar_partido', partido_id=partido.id) }}" style="display: inline;">
+              <button type="submit">Eliminar</button>
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Todavia no hay partidos cargados.</p>
+  {% endif %}
 {% endblock %}

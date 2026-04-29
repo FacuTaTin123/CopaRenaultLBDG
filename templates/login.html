@@ -1,15 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Copa Renault{% endblock %}
 
 {% block body %}
-<h1>¿Ya tenes Cuenta?</h1>
-<h3>Ingresa con tu usuario y contraseña</h3>
+  <h1>Ya tenes cuenta?</h1>
+  <h3>Ingresa con tu usuario y contrasena</h3>
 
-<input type="text" placeholder="Usuario">
-<input type="password" placeholder="Contraseña">
-<button>Ingresar</button>
-
-<nav>
-    <a href="/">Home</a> 
-</nav>
-<hr>
-
+  <form method="post">
+    <label>
+      Usuario
+      <input type="text" name="usuario" placeholder="Usuario" required>
+    </label>
+    <label>
+      Contrasena
+      <input type="password" name="password" placeholder="Contrasena" required>
+    </label>
+    <button type="submit">Ingresar</button>
+  </form>
 {% endblock %}
