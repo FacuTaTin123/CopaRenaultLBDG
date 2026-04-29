@@ -1,0 +1,25 @@
+
+{% block body %}
+<h1>Fixture</h1>
+
+{% if session.es_admin %}
+  <a href="/admin/crear_partido">Crear partido</a>
+{% endif %}
+
+<ul>
+  {% for partido in partidos %}
+    <li>
+      {{ partido.equipo_local }} vs {{ partido.equipo_visitante }}
+      - {{ partido.fecha }}
+
+      {% if partido.goles_local is not none %}
+        | {{ partido.goles_local }} - {{ partido.goles_visitante }}
+      {% endif %}
+
+      {% if session.es_admin %}
+        <a href="/admin/editar_partido/{{ partido.id }}">Editar</a>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
