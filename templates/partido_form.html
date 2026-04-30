@@ -7,26 +7,43 @@
 
   <form method="post">
     <label>
-      Equipo local
-      <input type="text" name="equipo_local" value="{{ partido.equipo_local if partido else '' }}" required>
+      Equipo 1
+      <input type="text" name="equipo1" value="{{ partido.equipo1 if partido else '' }}" required>
     </label>
     <label>
-      Equipo visitante
-      <input type="text" name="equipo_visitante" value="{{ partido.equipo_visitante if partido else '' }}" required>
+      Equipo 2
+      <input type="text" name="equipo2" value="{{ partido.equipo2 if partido else '' }}" required>
     </label>
     <label>
-      Fecha
-      <input type="date" name="fecha" value="{{ partido.fecha if partido else '' }}" required>
+      Deporte
+      <select name="deporte" required>
+        {% set deporte_actual = partido.deporte if partido else 'Futbol' %}
+        <option value="Futbol" {% if deporte_actual == 'Futbol' %}selected{% endif %}>Futbol</option>
+        <option value="Basquet" {% if deporte_actual == 'Basquet' %}selected{% endif %}>Basquet</option>
+        <option value="Voley" {% if deporte_actual == 'Voley' %}selected{% endif %}>Voley</option>
+      </select>
+    </label>
+    <label>
+      Rama
+      <select name="rama" required>
+        {% set rama_actual = partido.rama if partido else 'Masculino' %}
+        <option value="Masculino" {% if rama_actual == 'Masculino' %}selected{% endif %}>Masculino</option>
+        <option value="Femenino" {% if rama_actual == 'Femenino' %}selected{% endif %}>Femenino</option>
+      </select>
+    </label>
+    <label>
+      Horario
+      <input type="time" name="horario" value="{{ partido.horario if partido else '' }}" required>
     </label>
 
     {% if partido %}
       <label>
-        Goles local
-        <input type="number" name="goles_local" min="0" value="{{ partido.goles_local if partido.goles_local is not none else '' }}">
+        Goles equipo 1
+        <input type="number" name="goles_equipo1" min="0" value="{{ partido.goles_equipo1 if partido.goles_equipo1 is not none else '' }}">
       </label>
       <label>
-        Goles visitante
-        <input type="number" name="goles_visitante" min="0" value="{{ partido.goles_visitante if partido.goles_visitante is not none else '' }}">
+        Goles equipo 2
+        <input type="number" name="goles_equipo2" min="0" value="{{ partido.goles_equipo2 if partido.goles_equipo2 is not none else '' }}">
       </label>
     {% endif %}
 

@@ -4,6 +4,84 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Copa Renault{% endblock %}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+      color: #202020;
+    }
+
+    nav {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 12px 24px;
+      background: #2f2f2f;
+    }
+
+    nav a,
+    nav span {
+      color: white;
+    }
+
+    main {
+      padding: 20px 28px;
+    }
+
+    .bloque-grupos {
+      margin-bottom: 34px;
+    }
+
+    .bloque-grupos h2 {
+      margin: 18px 0 10px;
+    }
+
+    .grupos-fixture {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      max-width: 780px;
+      border: 4px solid #ffdd4a;
+      background: #ffdd4a;
+      gap: 4px;
+      margin: 0 0 12px;
+    }
+
+    .grupo {
+      background: #eeeeee;
+    }
+
+    .grupo h3 {
+      margin: 0;
+      padding: 7px 12px;
+      background: #ffdd4a;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .grupo table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .grupo td {
+      height: 44px;
+      padding: 8px 10px;
+      border-top: 1px solid #d6d6d6;
+      font-size: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .grupos-fixture {
+        grid-template-columns: 1fr;
+      }
+
+      .grupo td {
+        font-size: 17px;
+      }
+    }
+  </style>
 </head>
 <body>
   {% include "navbar.html" %}

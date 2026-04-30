@@ -9,15 +9,40 @@
     <p><a href="{{ url_for('crear_partido') }}">Crear partido</a></p>
   {% endif %}
 
+  {% for fixture_grupos in fixtures_grupos %}
+    <section class="bloque-grupos">
+      <h2>Grupos de {{ fixture_grupos.deporte }}</h2>
+
+      <div class="grupos-fixture">
+        {% for grupo in fixture_grupos.grupos %}
+          <article class="grupo">
+            <h3>{{ grupo.nombre }}</h3>
+            <table>
+              <tbody>
+                {% for equipo in grupo.equipos %}
+                  <tr>
+                    <td>{{ equipo }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+
   {% if partidos %}
+    <h2>Partidos</h2>
     <ul>
       {% for partido in partidos %}
         <li>
-          {{ partido.equipo_local }} vs {{ partido.equipo_visitante }}
-          - {{ partido.fecha }}
+          {{ partido.equipo1 }} vs {{ partido.equipo2 }}
+          - {{ partido.deporte }} {{ partido.rama }}
+          - {{ partido.horario }}
 
-          {% if partido.goles_local is not none and partido.goles_visitante is not none %}
-            | {{ partido.goles_local }} - {{ partido.goles_visitante }}
+          {% if partido.goles_equipo1 is not none and partido.goles_equipo2 is not none %}
+            | {{ partido.goles_equipo1 }} - {{ partido.goles_equipo2 }}
           {% endif %}
 
           {% if session.es_admin %}
