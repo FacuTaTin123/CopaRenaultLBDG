@@ -3,58 +3,127 @@
 {% block title %}Fixture - Copa Renault{% endblock %}
 
 {% block body %}
-  <h1>Fixture</h1>
+  <div class="button-row">
+    <h1 class="page-title">Fixture</h1>
+    {% if session.es_admin %}
+      <a class="btn btn-primary" href="{{ url_for('crear_partido') }}">Crear partido</a>
+    {% endif %}
+  </div>
 
-  {% if session.es_admin %}
-    <p><a href="{{ url_for('crear_partido') }}">Crear partido</a></p>
-  {% endif %}
+  <section class="sports-shell">
+    {% for fixture_grupos in fixtures_grupos %}
+      <article class="sport-board">
+        <div class="groups-grid">
+          {% for grupo in fixture_grupos.grupos %}
+            <section class="grupo">
+              <h3>{{ fixture_grupos.deporte }} - {{ grupo.nombre }}</h3>
+              <table>
+                <tbody>
+                  {% for equipo in grupo.equipos %}
+                    <tr>
+                      <td>{{ equipo }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </section>
+          {% endfor %}
+        </div>
 
-  {% for fixture_grupos in fixtures_grupos %}
-    <section class="bloque-grupos">
-      <h2>Grupos de {{ fixture_grupos.deporte }}</h2>
+        <div class="field-panel">
+          <div
+            class="field-photo {% if fixture_grupos.deporte == 'Voley' %}field-voley{% elif fixture_grupos.deporte == 'Basquet' %}field-basquet{% else %}field-futbol{% endif %}"
+            aria-label="Cancha de {{ fixture_grupos.deporte }}"
+          >
+            <span class="field-zone">1</span>
+            <span class="field-zone">2</span>
+            <span class="field-zone">3</span>
+            <span class="field-zone">4</span>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
 
-      <div class="grupos-fixture">
-        {% for grupo in fixture_grupos.grupos %}
-          <article class="grupo">
-            <h3>{{ grupo.nombre }}</h3>
-            <table>
-              <tbody>
-                {% for equipo in grupo.equipos %}
-                  <tr>
-                    <td>{{ equipo }}</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+  <section class="fixture-panel">
+    <div class="filter-row">
+      <span class="pill">Futbol Masculino</span>
+      <span class="pill">Basquet Masculino</span>
+      <span class="pill">Voley Femenino</span>
+    </div>
+
+    {% if partidos %}
+      <div class="match-list">
+        {% for partido in partidos %}
+          <article class="match-card">
+            <div class="match-meta">
+              <span>{{ partido.deporte }} {{ partido.rama }}</span>
+              <span>{{ partido.horario }} HS</span>
+              <span>CANCHA {{ loop.index }}</span>
+            </div>
+
+            <div class="match-body">
+              <span>{{ partido.equipo1 }}</span>
+              <span>VS</span>
+              <span>{{ partido.equipo2 }}</span>
+              <span class="score">
+                {% if partido.goles_equipo1 is not none and partido.goles_equipo2 is not none %}
+                  {{ partido.goles_equipo1 }} - {{ partido.goles_equipo2 }}
+                {% else %}
+                  Pendiente
+                {% endif %}
+              </span>
+            </div>
+
+            {% if session.es_admin %}
+              <div class="match-actions">
+                <a class="link-button" href="{{ url_for('editar_partido', partido_id=partido.id) }}">Editar</a>
+                <form method="post" action="{{ url_for('eliminar_partido', partido_id=partido.id) }}">
+                  <button class="link-button" type="submit">Eliminar</button>
+                </form>
+              </div>
+            {% endif %}
           </article>
         {% endfor %}
       </div>
-    </section>
+    {% else %}
+      <p>Todavia no hay partidos cargados.</p>
+    {% endif %}
+  </section>
+
+  <section class="positions-wrap">
+    {% for tabla in tablas_posiciones %}
+      <article class="positions-card">
+        <h3>Tabla de posiciones - {{ tabla.deporte }} {{ tabla.grupo }}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Equipo</th>
+              <th>PJ</th>
+              <th>G</th>
+              <th>E</th>
+              <th>P</th>
+              <th>GF</th>
+              <th>GC</th>
+              <th>PTS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in tabla.posiciones %}
+              <tr>
+                <td>{{ fila.equipo }}</td>
+                <td>{{ fila.pj }}</td>
+                <td>{{ fila.g }}</td>
+                <td>{{ fila.e }}</td>
+                <td>{{ fila.p }}</td>
+                <td>{{ fila.gf }}</td>
+                <td>{{ fila.gc }}</td>
+                <td>{{ fila.pts }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
     {% endfor %}
-
-  {% if partidos %}
-    <h2>Partidos</h2>
-    <ul>
-      {% for partido in partidos %}
-        <li>
-          {{ partido.equipo1 }} vs {{ partido.equipo2 }}
-          - {{ partido.deporte }} {{ partido.rama }}
-          - {{ partido.horario }}
-
-          {% if partido.goles_equipo1 is not none and partido.goles_equipo2 is not none %}
-            | {{ partido.goles_equipo1 }} - {{ partido.goles_equipo2 }}
-          {% endif %}
-
-          {% if session.es_admin %}
-            <a href="{{ url_for('editar_partido', partido_id=partido.id) }}">Editar</a>
-            <form method="post" action="{{ url_for('eliminar_partido', partido_id=partido.id) }}" style="display: inline;">
-              <button type="submit">Eliminar</button>
-            </form>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Todavia no hay partidos cargados.</p>
-  {% endif %}
+  </section>
 {% endblock %}

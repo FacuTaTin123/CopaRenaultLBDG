@@ -1,5 +1,8 @@
-<nav>
-  <a href="{{ url_for('index') }}">Home</a>
+<nav class="topbar">
+  <a class="brand-mini" href="{{ url_for('index') }}">
+    <span>Copa Renault</span>
+    <span class="trophy" aria-hidden="true"></span>
+  </a>
   <a href="{{ url_for('fixture') }}">Fixture</a>
   <a href="{{ url_for('contacto') }}">Contacto</a>
 
@@ -7,8 +10,7 @@
     <span>Hola, {{ usuario_actual }}</span>
     <a href="{{ url_for('logout') }}">Logout</a>
   {% else %}
-    <a href="{{ url_for('registro') }}">Registro</a>
-    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('login') }}">Iniciar Sesion</a>
+    <a href="{{ url_for('registro') }}">Crear Cuenta</a>
   {% endif %}
 </nav>
-<hr>

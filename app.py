@@ -158,10 +158,12 @@ def fixture():
         traer_todos=True,
     )
     fixtures_grupos = armar_fixtures_grupos(partidos)
+    tablas_posiciones = armar_tablas_posiciones(partidos, fixtures_grupos)
     return render_template(
         "fixture.html",
         partidos=partidos,
         fixtures_grupos=fixtures_grupos,
+        tablas_posiciones=tablas_posiciones,
     )
 
 
@@ -300,6 +302,81 @@ def armar_grupos(partidos):
         {"nombre": f"GRUPO {numero}", "equipos": equipos[inicio : inicio + 4]}
         for numero, inicio in enumerate(range(0, 16, 4), start=1)
     ]
+
+
+def armar_tablas_posiciones(partidos, fixtures_grupos):
+    tablas = []
+
+    for fixture_grupos in fixtures_grupos:
+        deporte = fixture_grupos["deporte"]
+        for grupo in fixture_grupos["grupos"]:
+            equipos_grupo = grupo["equipos"]
+            tabla = {
+                equipo: {
+                    "equipo": equipo,
+                    "pj": 0,
+                    "g": 0,
+                    "e": 0,
+                    "p": 0,
+                    "gf": 0,
+                    "gc": 0,
+                    "pts": 0,
+                }
+                for equipo in equipos_grupo
+            }
+
+            for partido in partidos:
+                if partido["deporte"] != deporte:
+                    continue
+                if partido["equipo1"] not in tabla or partido["equipo2"] not in tabla:
+                    continue
+                if partido["goles_equipo1"] is None or partido["goles_equipo2"] is None:
+                    continue
+
+                equipo1 = tabla[partido["equipo1"]]
+                equipo2 = tabla[partido["equipo2"]]
+                goles1 = partido["goles_equipo1"]
+                goles2 = partido["goles_equipo2"]
+
+                equipo1["pj"] += 1
+                equipo2["pj"] += 1
+                equipo1["gf"] += goles1
+                equipo1["gc"] += goles2
+                equipo2["gf"] += goles2
+                equipo2["gc"] += goles1
+
+                if goles1 > goles2:
+                    equipo1["g"] += 1
+                    equipo2["p"] += 1
+                    equipo1["pts"] += 3
+                elif goles2 > goles1:
+                    equipo2["g"] += 1
+                    equipo1["p"] += 1
+                    equipo2["pts"] += 3
+                else:
+                    equipo1["e"] += 1
+                    equipo2["e"] += 1
+                    equipo1["pts"] += 1
+                    equipo2["pts"] += 1
+
+            posiciones = sorted(
+                tabla.values(),
+                key=lambda fila: (
+                    fila["pts"],
+                    fila["gf"] - fila["gc"],
+                    fila["gf"],
+                ),
+                reverse=True,
+            )
+            tablas.append(
+                {
+                    "deporte": deporte,
+                    "grupo": grupo["nombre"],
+                    "posiciones": posiciones,
+                }
+            )
+
+    return tablas
 
 
 def datos_partido_completos(partido):

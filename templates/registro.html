@@ -3,18 +3,31 @@
 {% block title %}Registro - Copa Renault{% endblock %}
 
 {% block body %}
-  <h1>Registrate</h1>
-  <h3>Crea tu cuenta para participar</h3>
+  <section class="window-page">
+    <div class="browser-window">
+      <div class="window-bar">
+        <span class="window-dot">x</span>
+        <span class="window-dot">+</span>
+        <span class="window-dot">-</span>
+      </div>
 
-  <form method="post">
-    <label>
-      Usuario
-      <input type="text" name="usuario" placeholder="Usuario" required>
-    </label>
-    <label>
-      Contrasena
-      <input type="password" name="password" placeholder="Contrasena" required>
-    </label>
-    <button type="submit">Registrarse</button>
-  </form>
+      <form class="auth-card form-stack" method="post">
+        <span class="trophy" aria-hidden="true"></span>
+        <h1>Copa Renault</h1>
+        <h2>Crear Cuenta</h2>
+
+        <label>
+          Usuario
+          <input type="text" name="usuario" placeholder="Usuario" required>
+        </label>
+
+        <label>
+          Contrasena
+          <input type="password" name="password" placeholder="Contrasena" required>
+        </label>
+
+        <button class="btn btn-primary" type="submit">Registrarse -></button>
+      </form>
+    </div>
+  </section>
 {% endblock %}

@@ -5,46 +5,298 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Copa Renault{% endblock %}</title>
   <style>
+    :root {
+      --amarillo: #f4c247;
+      --amarillo-claro: #ffdd56;
+      --negro: #242424;
+      --gris: #efefef;
+      --linea: #d8d8d8;
+      --azul: #b9dbf7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background: #f4f4f4;
-      color: #202020;
+      background: var(--amarillo);
+      color: #1f1f1f;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
-    nav {
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
       display: flex;
-      gap: 16px;
+      gap: 26px;
       align-items: center;
-      padding: 12px 24px;
-      background: #2f2f2f;
+      justify-content: center;
+      min-height: 64px;
+      padding: 14px 24px;
+      background: #f7f7f7;
+      border-bottom: 6px solid var(--negro);
     }
 
-    nav a,
-    nav span {
-      color: white;
+    .brand-mini {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-right: auto;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 26px;
+    }
+
+    .trophy {
+      width: 34px;
+      height: 42px;
+      display: inline-block;
+      flex: 0 0 auto;
+      background-image: url("{{ url_for('static', filename='img/copa-renault.png') }}");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      vertical-align: middle;
+    }
+
+    .topbar a,
+    .topbar span {
+      font-weight: 700;
+    }
+
+    .topbar a {
+      padding: 9px 18px;
+      border: 2px solid transparent;
+      border-radius: 999px;
+    }
+
+    .topbar a:hover {
+      border-color: var(--negro);
+      background: white;
     }
 
     main {
-      padding: 20px 28px;
+      width: min(1320px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
     }
 
-    .bloque-grupos {
-      margin-bottom: 34px;
+    .flash-list {
+      width: min(900px, calc(100% - 36px));
+      margin: 18px auto 0;
     }
 
-    .bloque-grupos h2 {
-      margin: 18px 0 10px;
+    .flash-list p {
+      margin: 8px 0;
+      padding: 12px 16px;
+      border: 2px solid var(--negro);
+      background: white;
+      font-weight: 700;
     }
 
-    .grupos-fixture {
+    .page-title {
+      margin: 0 0 22px;
+      font-size: clamp(34px, 5vw, 62px);
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 500;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 30px;
+      border: 2px solid var(--negro);
+      border-radius: 999px;
+      background: white;
+      color: #111;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 3px 4px 0 var(--negro);
+    }
+
+    .btn-primary {
+      background: var(--azul);
+    }
+
+    .hero {
+      overflow: hidden;
+      background: #ededed;
+      box-shadow: 10px 12px 0 rgba(0, 0, 0, 0.15);
+      width: min(1600px, calc(100vw - 40px));
+      margin-left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .hero-top {
       display: grid;
-      grid-template-columns: repeat(2, minmax(220px, 1fr));
-      max-width: 780px;
-      border: 4px solid #ffdd4a;
-      background: #ffdd4a;
+      grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+      gap: 40px;
+      padding: 34px 42px 42px;
+      background: #f2f2f2;
+    }
+
+    .social-row {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--amarillo);
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .hero-brand {
+      align-self: center;
+    }
+
+    .hero-brand h1 {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin: 0 0 28px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(42px, 6vw, 70px);
+      font-weight: 500;
+    }
+
+    .hero-brand h1 .trophy {
+      width: 70px;
+      height: 86px;
+    }
+
+    .hero-copy {
+      font-size: 19px;
+      line-height: 1.45;
+    }
+
+    .hero-copy strong {
+      display: block;
+      margin-bottom: 22px;
+      font-size: 24px;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .hero-photo {
+      min-height: 470px;
+      background-image: url("{{ url_for('static', filename='img/futbol-portada.png') }}");
+      background-position: center 52%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .window-page {
+      display: flex;
+      justify-content: center;
+      padding: 28px 0;
+    }
+
+    .browser-window {
+      width: min(850px, 100%);
+      background: #f7f7f7;
+      border: 5px solid var(--negro);
+      border-radius: 10px;
+      box-shadow: 26px 26px 0 var(--negro);
+    }
+
+    .window-bar {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      height: 86px;
+      padding: 0 28px;
+      border-bottom: 8px solid var(--negro);
+      background: white;
+    }
+
+    .window-dot {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 3px solid var(--negro);
+      border-radius: 50%;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .auth-card {
+      width: min(400px, calc(100% - 36px));
+      margin: 28px auto 38px;
+      padding: 34px 42px 44px;
+      border: 4px solid var(--negro);
+      border-radius: 6px;
+      background: white;
+      text-align: center;
+    }
+
+    .auth-card h1,
+    .panel-title {
+      margin: 16px 0 28px;
+      font-size: 28px;
+      text-transform: uppercase;
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 42px;
+      padding: 0 14px;
+      border: 2px solid #8a8a8a;
+      border-radius: 4px;
+      background: #f4f4f4;
+      font: inherit;
+      box-shadow: 3px 4px 0 var(--negro);
+    }
+
+    .sports-shell {
+      background: var(--negro);
+      padding: 0 0 42px;
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .sport-board {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.45fr) minmax(300px, 1fr);
+      min-height: 520px;
+      border-left: 6px solid var(--negro);
+      border-top: 6px solid var(--negro);
+      background: var(--negro);
+    }
+
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      align-self: start;
+      border: 4px solid var(--amarillo-claro);
+      background: var(--amarillo-claro);
       gap: 4px;
-      margin: 0 0 12px;
     }
 
     .grupo {
@@ -53,11 +305,11 @@
 
     .grupo h3 {
       margin: 0;
-      padding: 7px 12px;
-      background: #ffdd4a;
+      padding: 8px 12px;
+      background: var(--amarillo-claro);
       text-align: center;
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 900;
     }
 
     .grupo table {
@@ -66,19 +318,261 @@
     }
 
     .grupo td {
-      height: 44px;
-      padding: 8px 10px;
-      border-top: 1px solid #d6d6d6;
-      font-size: 20px;
+      height: 56px;
+      padding: 9px 12px;
+      border-top: 1px solid var(--linea);
+      font-size: clamp(17px, 2vw, 22px);
     }
 
-    @media (max-width: 700px) {
-      .grupos-fixture {
+    .field-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 54px 34px;
+      background: var(--negro);
+    }
+
+    .field-photo {
+      position: relative;
+      width: min(520px, 100%);
+      aspect-ratio: 1.35;
+      overflow: hidden;
+      border: 3px solid rgba(0, 0, 0, 0.45);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .field-futbol {
+      background-image: url("{{ url_for('static', filename='img/cancha-futbol.webp') }}");
+    }
+
+    .field-voley {
+      aspect-ratio: 1.55;
+      background-image: url("{{ url_for('static', filename='img/cancha-voley.webp') }}");
+    }
+
+    .field-basquet {
+      aspect-ratio: 1.55;
+      background-image: url("{{ url_for('static', filename='img/cancha-basquet.jpg') }}");
+    }
+
+    .field-zone {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 36%;
+      height: 28%;
+      border: 4px solid rgba(0, 0, 0, 0.55);
+      background: rgba(244, 194, 71, 0.25);
+      color: #111;
+      font-size: 26px;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+    }
+
+    .field-zone:nth-child(1) { left: 8%; top: 17%; }
+    .field-zone:nth-child(2) { left: 8%; top: 56%; }
+    .field-zone:nth-child(3) { right: 8%; top: 17%; }
+    .field-zone:nth-child(4) { right: 8%; top: 56%; }
+
+    .fixture-panel {
+      margin-top: 42px;
+      padding: 26px;
+      background: white;
+      border: 5px solid var(--negro);
+      border-radius: 10px;
+      box-shadow: 18px 18px 0 var(--negro);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-bottom: 22px;
+    }
+
+    .pill {
+      padding: 10px 16px;
+      background: #ececec;
+      border: 1px solid var(--linea);
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .match-list {
+      display: grid;
+      gap: 22px;
+    }
+
+    .match-card {
+      overflow: hidden;
+      border: 3px solid var(--negro);
+      border-radius: 10px;
+      background: #f4f4f4;
+      box-shadow: 9px 10px 0 var(--negro);
+    }
+
+    .match-meta {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      padding: 7px 24px;
+      background: #d7d7d7;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+    }
+
+    .match-meta span:last-child {
+      text-align: right;
+    }
+
+    .match-body {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 20px 34px;
+      font-size: clamp(24px, 4vw, 42px);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .score {
+      color: #555;
+      font-size: 24px;
+      white-space: nowrap;
+    }
+
+    .match-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      padding: 0 20px 16px;
+    }
+
+    .link-button {
+      border: 0;
+      background: none;
+      color: #111;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .positions-wrap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+      margin-top: 42px;
+    }
+
+    .positions-card {
+      overflow: hidden;
+      background: #f4f4f4;
+      border: 4px solid var(--negro);
+      border-radius: 8px;
+      box-shadow: 11px 12px 0 var(--negro);
+    }
+
+    .positions-card h3 {
+      margin: 0;
+      padding: 13px;
+      background: var(--amarillo);
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .positions-card table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .positions-card th {
+      background: #d8d8d8;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .positions-card th:first-child,
+    .positions-card td:first-child {
+      text-align: left;
+    }
+
+    .positions-card th,
+    .positions-card td {
+      padding: 10px;
+      border: 1px solid var(--linea);
+    }
+
+    .contact-card {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 42px;
+      background: white;
+      border: 5px solid var(--negro);
+      border-radius: 10px;
+      box-shadow: 16px 16px 0 var(--negro);
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .brand-mini {
+        margin-right: 0;
+        min-width: max-content;
+      }
+
+      .hero-top,
+      .sport-board {
         grid-template-columns: 1fr;
       }
 
-      .grupo td {
-        font-size: 17px;
+      .match-body {
+        grid-template-columns: 1fr;
+      }
+
+      .score {
+        white-space: normal;
+      }
+    }
+
+    @media (max-width: 620px) {
+      main {
+        width: min(100% - 20px, 1320px);
+        padding-top: 22px;
+      }
+
+      .groups-grid,
+      .positions-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-top,
+      .auth-card,
+      .fixture-panel,
+      .contact-card {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .hero {
+        width: 100%;
+      }
+
+      .hero-photo {
+        min-height: 300px;
+      }
+
+      .browser-window,
+      .fixture-panel,
+      .positions-card {
+        box-shadow: 8px 8px 0 var(--negro);
       }
     }
   </style>
@@ -88,7 +582,7 @@
 
   {% with mensajes = get_flashed_messages(with_categories=true) %}
     {% if mensajes %}
-      <section>
+      <section class="flash-list">
         {% for categoria, mensaje in mensajes %}
           <p class="{{ categoria }}">{{ mensaje }}</p>
         {% endfor %}

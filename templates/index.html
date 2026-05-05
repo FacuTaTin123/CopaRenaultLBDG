@@ -3,8 +3,35 @@
 {% block title %}Copa Renault{% endblock %}
 
 {% block body %}
-  <h1>Copa Renault</h1>
-  <p>Bienvenido a la pagina principal del torneo.</p>
+  <section class="hero">
+    <div class="hero-top">
+      <div class="social-row">
+        <span>IG</span>
+        <span>FB</span>
+        <span>X</span>
+        <span>MAIL</span>
+      </div>
 
+      <div class="hero-brand">
+        <h1>
+          Copa Renault
+          <span class="trophy" aria-hidden="true"></span>
+        </h1>
+        <div class="button-row">
+          <a class="btn" href="{{ url_for('login') }}">Iniciar Sesion</a>
+          <a class="btn" href="{{ url_for('registro') }}">Crear Cuenta</a>
+        </div>
+      </div>
 
+      <div class="hero-copy">
+        <strong>Somos un evento deportivo intercolegial que promueve la participacion activa de jovenes estudiantes.</strong>
+        <p>
+          A traves de futbol, voley y basquet, la Copa Renault impulsa el trabajo en equipo,
+          la responsabilidad, el compromiso y el juego limpio.
+        </p>
+      </div>
+    </div>
+
+    <div class="hero-photo" aria-label="Cancha de futbol"></div>
+  </section>
 {% endblock %}
