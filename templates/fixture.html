@@ -20,6 +20,15 @@
 
 </div>
 
+<div class="fixture-tabs" aria-label="Secciones del fixture">
+  <input type="radio" name="fixture_tab" id="tab-partidos" checked>
+  <input type="radio" name="fixture_tab" id="tab-tabla">
+
+  <div class="fixture-tab-labels">
+    <label for="tab-partidos">Partidos</label>
+    <label for="tab-tabla">Tabla</label>
+  </div>
+
 <!-- ================================================= -->
 <!-- CREAR PARTIDO SOLO ADMIN -->
 <!-- ================================================= -->
@@ -158,110 +167,205 @@
 
 {% endif %}
 
-<!-- ================================================= -->
-<!-- LISTA DE PARTIDOS -->
-<!-- ================================================= -->
+  <!-- ================================================= -->
+  <!-- LISTA DE PARTIDOS -->
+  <!-- ================================================= -->
 
-<section class="fixture-panel">
+  <section class="fixture-panel tab-content tab-content-partidos">
 
-  <div class="filter-row">
+    <div class="filter-row">
 
-    <span class="pill">Futbol Masculino</span>
-    <span class="pill">Basquet Masculino</span>
-    <span class="pill">Voley Femenino</span>
-
-  </div>
-
-  {% if partidos %}
-
-    <div class="match-list">
-
-      {% for partido in partidos %}
-
-        <article class="match-card">
-
-          <div class="match-meta">
-
-            <span>
-              {{ partido.deporte }} {{ partido.rama }}
-            </span>
-
-            <span>
-              {{ partido.horario }} HS
-            </span>
-
-            <span>
-              CANCHA {{ partido.cancha if partido.cancha else loop.index }}
-            </span>
-
-          </div>
-
-          <div class="match-body">
-
-            <span>{{ partido.equipo1 }}</span>
-            <span>VS</span>
-            <span>{{ partido.equipo2 }}</span>
-
-            <span class="score">
-
-              {% if partido.goles1 is not none and partido.goles2 is not none %}
-                {{ partido.goles1 }} - {{ partido.goles2 }}
-              {% else %}
-                Pendiente
-              {% endif %}
-
-            </span>
-
-          </div>
-
-          {% if session.get("es_admin") %}
-
-          <div class="match-actions">
-
-            <form method="POST" action="{{ url_for('resultado', id=partido.id) }}"
-              style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-
-              <input type="number" name="goles1" placeholder="Goles 1" required>
-              <input type="number" name="goles2" placeholder="Goles 2" required>
-
-              <button class="btn" type="submit">
-                Guardar Resultado
-              </button>
-
-            </form>
-
-            <form method="POST"
-              action="{{ url_for('eliminar_partido', id=partido.id) }}">
-
-              <button class="btn" type="submit">
-                Eliminar
-              </button>
-
-            </form>
-
-          </div>
-
-          {% endif %}
-
-        </article>
-
-      {% endfor %}
+      <span class="pill">Futbol Masculino</span>
+      <span class="pill">Basquet Masculino</span>
+      <span class="pill">Voley Femenino</span>
 
     </div>
 
-  {% else %}
+    {% if partidos %}
 
-    <p>Todavia no hay partidos cargados.</p>
+      <div class="match-list">
 
-  {% endif %}
+        {% for partido in partidos %}
 
-</section>
+          <article class="match-card">
+
+            <div class="match-meta">
+
+              <span>
+                {{ partido.deporte }} {{ partido.rama }}
+              </span>
+
+              <span>
+                {{ partido.horario }} HS
+              </span>
+
+              <span>
+                CANCHA {{ partido.cancha if partido.cancha else loop.index }}
+              </span>
+
+            </div>
+
+            <div class="match-body">
+
+              <span>{{ partido.equipo1 }}</span>
+              <span>VS</span>
+              <span>{{ partido.equipo2 }}</span>
+
+              <span class="score">
+
+                {% if partido.goles1 is not none and partido.goles2 is not none %}
+                  {{ partido.goles1 }} - {{ partido.goles2 }}
+                {% else %}
+                  Pendiente
+                {% endif %}
+
+              </span>
+
+            </div>
+
+            {% if session.get("es_admin") %}
+
+            <div class="match-actions">
+
+              <form method="POST" action="{{ url_for('resultado', id=partido.id) }}"
+                style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+
+                <input type="number" name="goles1" placeholder="Goles 1" required>
+                <input type="number" name="goles2" placeholder="Goles 2" required>
+
+                <button class="btn" type="submit">
+                  Guardar Resultado
+                </button>
+
+              </form>
+
+              <form method="POST"
+                action="{{ url_for('eliminar_partido', id=partido.id) }}">
+
+                <button class="btn" type="submit">
+                  Eliminar
+                </button>
+
+              </form>
+
+            </div>
+
+            {% endif %}
+
+          </article>
+
+        {% endfor %}
+
+      </div>
+
+    {% else %}
+
+      <p>Todavia no hay partidos cargados.</p>
+
+    {% endif %}
+
+  </section>
+
+  <!-- ================================================= -->
+  <!-- TABLA DE POSICIONES -->
+  <!-- ================================================= -->
+
+  <section class="positions-wrap tab-content tab-content-tabla">
+
+    <article class="positions-card">
+      <h3>Copa Renault</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>PJ</th>
+            <th>G</th>
+            <th>E</th>
+            <th>P</th>
+            <th>GF</th>
+            <th>GC</th>
+            <th>PTS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if tabla_posiciones %}
+            {% for equipo in tabla_posiciones %}
+              <tr>
+                <td>{{ equipo.equipo }}</td>
+                <td>{{ equipo.pj }}</td>
+                <td>{{ equipo.g }}</td>
+                <td>{{ equipo.e }}</td>
+                <td>{{ equipo.p }}</td>
+                <td>{{ equipo.gf }}</td>
+                <td>{{ equipo.gc }}</td>
+                <td>{{ equipo.pts }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="8">Todavia no hay equipos para mostrar.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </article>
+
+  </section>
+
+</div>
 
 <!-- ================================================= -->
 <!-- ESTILOS -->
 <!-- ================================================= -->
 
 <style>
+.fixture-tabs > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fixture-tab-labels {
+  display: inline-flex;
+  gap: 0;
+  overflow: hidden;
+  margin-top: 10px;
+  border: 3px solid #242424;
+  border-radius: 999px;
+  background: white;
+  box-shadow: 5px 6px 0 #242424;
+}
+
+.fixture-tab-labels label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  min-height: 44px;
+  padding: 0 22px;
+  cursor: pointer;
+  font-weight: 900;
+  text-align: center;
+}
+
+#tab-partidos:checked ~ .fixture-tab-labels label[for="tab-partidos"],
+#tab-tabla:checked ~ .fixture-tab-labels label[for="tab-tabla"] {
+  background: #b9dbf7;
+}
+
+.tab-content {
+  display: none;
+}
+
+#tab-partidos:checked ~ .tab-content-partidos,
+#tab-tabla:checked ~ .tab-content-tabla {
+  display: grid;
+}
+
+.tab-content-tabla {
+  max-width: 900px;
+}
+
 .slider-group {
   margin: 15px 0;
 }

@@ -40,7 +40,68 @@ fixtures_grupos = [
     }
 ]
 
-tablas_posiciones = []
+def armar_tabla_posiciones(partidos):
+    equipos = {}
+
+    for partido in partidos:
+        equipo1 = partido.get("equipo1")
+        equipo2 = partido.get("equipo2")
+
+        if not equipo1 or not equipo2:
+            continue
+
+        for equipo in (equipo1, equipo2):
+            equipos.setdefault(equipo, {
+                "equipo": equipo,
+                "pj": 0,
+                "g": 0,
+                "e": 0,
+                "p": 0,
+                "gf": 0,
+                "gc": 0,
+                "pts": 0
+            })
+
+        goles1 = partido.get("goles1")
+        goles2 = partido.get("goles2")
+
+        if goles1 is None or goles2 is None:
+            continue
+
+        goles1 = int(goles1)
+        goles2 = int(goles2)
+
+        equipos[equipo1]["pj"] += 1
+        equipos[equipo2]["pj"] += 1
+        equipos[equipo1]["gf"] += goles1
+        equipos[equipo1]["gc"] += goles2
+        equipos[equipo2]["gf"] += goles2
+        equipos[equipo2]["gc"] += goles1
+
+        if goles1 > goles2:
+            equipos[equipo1]["g"] += 1
+            equipos[equipo2]["p"] += 1
+            equipos[equipo1]["pts"] += 3
+        elif goles2 > goles1:
+            equipos[equipo2]["g"] += 1
+            equipos[equipo1]["p"] += 1
+            equipos[equipo2]["pts"] += 3
+        else:
+            equipos[equipo1]["e"] += 1
+            equipos[equipo2]["e"] += 1
+            equipos[equipo1]["pts"] += 1
+            equipos[equipo2]["pts"] += 1
+
+    return sorted(
+        equipos.values(),
+        key=lambda equipo: (
+            equipo["pts"],
+            equipo["gf"] - equipo["gc"],
+            equipo["gf"],
+            equipo["equipo"]
+        ),
+        reverse=True
+    )
 
 # =====================================================
 # CONTEXTO GLOBAL
@@ -156,7 +217,7 @@ def fixture():
         "fixture.html",
         partidos=partidos,
         fixtures_grupos=fixtures_grupos,
-        tablas_posiciones=tablas_posiciones
+        tabla_posiciones=armar_tabla_posiciones(partidos)
     )
 
 # =====================================================
@@ -174,7 +235,9 @@ def crear_partido():
         "equipo1": request.form["equipo1"],
         "equipo2": request.form["equipo2"],
         "deporte": request.form["deporte"],
+        "categoria": request.form["categoria"],
         "rama": request.form["rama"],
+        "cancha": request.form["cancha"],
         "horario": request.form["horario"],
         "goles1": None,
         "goles2": None

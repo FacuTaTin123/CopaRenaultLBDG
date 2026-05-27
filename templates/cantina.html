@@ -1,44 +1,148 @@
 {% extends "base.html" %}
 
+{% block title %}Cantina - Copa Renault{% endblock %}
+
 {% block body %}
 
-<h1>Cantina</h1>
+<div class="button-row">
+  <h1 class="page-title">Cantina</h1>
 
-<!-- ================= ADMIN ================= -->
+  {% if es_admin %}
+    <span class="btn btn-primary">Modo Administrador</span>
+  {% endif %}
+</div>
+
 {% if es_admin %}
 
-<form method="POST" action="/cantina/agregar">
+<section class="fixture-panel canteen-admin">
+  <h2 class="panel-title">Agregar Producto</h2>
 
-  <input type="text" name="nombre" placeholder="Producto" required>
-  <input type="number" name="precio" placeholder="Precio" required>
-
-  <button type="submit">Agregar</button>
-
-</form>
+  <form class="match-create-form" method="POST" action="{{ url_for('agregar_producto') }}">
+    <input type="text" name="nombre" placeholder="Producto" required>
+    <input type="number" name="precio" placeholder="Precio" required>
+    <button class="btn btn-primary" type="submit">Agregar</button>
+  </form>
+</section>
 
 {% endif %}
 
-<hr>
+<section class="fixture-panel canteen-panel">
+  <div class="canteen-titlebar">
+    <h2>Cantina</h2>
+  </div>
 
-<!-- ================= PRODUCTOS ================= -->
+  {% if productos %}
 
-{% for p in productos %}
+    <div class="canteen-grid">
+      {% for p in productos %}
 
-<div class="card">
+        <article class="canteen-card">
+          <div>
+            <h3>{{ p.nombre }}</h3>
+            <p>Producto de la cantina</p>
+            <strong>$ {{ p.precio }}</strong>
+          </div>
 
-  <h3>{{ p.nombre }}</h3>
-  <p>$ {{ p.precio }}</p>
+          <div class="canteen-badge" aria-hidden="true">
+            {{ p.nombre[:1] }}
+          </div>
 
-  {% if es_admin %}
+          {% if es_admin %}
+            <form method="POST" action="{{ url_for('eliminar_producto', id=p.id) }}">
+              <button class="link-button" type="submit">Eliminar</button>
+            </form>
+          {% endif %}
+        </article>
 
-  <form method="POST" action="/cantina/eliminar/{{ p.id }}">
-    <button>Eliminar</button>
-  </form>
+      {% endfor %}
+    </div>
+
+  {% else %}
+
+    <p>Todavia no hay productos cargados.</p>
 
   {% endif %}
+</section>
 
-</div>
+<style>
+.canteen-panel {
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-{% endfor %}
+.canteen-titlebar {
+  margin: -26px -26px 26px;
+  padding: 14px 24px;
+  border-bottom: 5px solid #242424;
+  background: #ffffff;
+  text-align: center;
+}
+
+.canteen-titlebar h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  text-decoration: underline;
+}
+
+.canteen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+}
+
+.canteen-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 150px;
+  padding: 18px;
+  border: 3px solid #242424;
+  border-radius: 10px;
+  background: #f7f7f7;
+  box-shadow: 7px 8px 0 #242424;
+}
+
+.canteen-card h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.canteen-card p {
+  margin: 0 0 10px;
+  color: #4a4a4a;
+}
+
+.canteen-card strong {
+  font-size: 20px;
+}
+
+.canteen-badge {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  border: 3px solid #242424;
+  border-radius: 50%;
+  background: #ffdd56;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.canteen-card form {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+@media (max-width: 620px) {
+  .canteen-titlebar {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+}
+</style>
 
 {% endblock %}
