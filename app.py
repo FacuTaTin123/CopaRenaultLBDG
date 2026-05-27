@@ -1,419 +1,291 @@
-import os
-from functools import wraps
+from flask import *
+from firebase_config import db
 
-import mysql.connector
-from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
-from mysql.connector import Error
-from werkzeug.security import check_password_hash, generate_password_hash
+aplicacion = Flask(__name__)
 
+aplicacion.secret_key = "copa_renault"
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "cambiar-esta-clave"
+# =====================================================
+# CREAR ADMIN AUTOMÁTICO
+# =====================================================
 
-DB_CONFIG = {
-    "host": os.getenv("MYSQL_HOST", "localhost"),
-    "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD") or "Dinosaurio123$",
-    "database": os.getenv("MYSQL_DATABASE", "copa_renault"),
-}
+admin = db.collection("usuarios") \
+    .where("usuario", "==", "admin") \
+    .get()
 
+if len(admin) == 0:
 
-def conectar_db(usar_base=True):
-    config = DB_CONFIG.copy()
-    if not usar_base:
-        config.pop("database")
-    return mysql.connector.connect(**config)
+    db.collection("usuarios").add({
 
+        "usuario": "admin",
+        "password": "1234",
+        "rol": "admin"
+    })
 
-def ejecutar_consulta(sql, parametros=None, traer_uno=False, traer_todos=False):
-    conexion = conectar_db()
-    cursor = conexion.cursor(dictionary=True)
+# =====================================================
+# DATOS VISUALES
+# =====================================================
 
-    try:
-        cursor.execute(sql, parametros or ())
+fixtures_grupos = [
+    {
+        "deporte": "Futbol",
+        "grupos": [
+            {
+                "nombre": "Grupo A",
+                "equipos": [
+                    "4A",
+                    "4B",
+                    "5A",
+                    "5B"
+                ]
+            },
+            {
+                "nombre": "Grupo B",
+                "equipos": [
+                    "6A",
+                    "6B",
+                    "7A",
+                    "7B"
+                ]
+            }
+        ]
+    }
+]
 
-        if traer_uno:
-            return cursor.fetchone()
-        if traer_todos:
-            return cursor.fetchall()
+tablas_posiciones = []
 
-        conexion.commit()
-        return cursor.lastrowid
-    finally:
-        cursor.close()
-        conexion.close()
+# =====================================================
+# USUARIO GLOBAL
+# =====================================================
 
+@aplicacion.context_processor
+def variables_globales():
 
-def admin_requerido(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if not session.get("es_admin"):
-            flash("Necesitas iniciar sesion como administrador.", "error")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
+    return {
 
-    return wrapper
+        "usuario_actual": session.get("usuario"),
+        "es_admin": session.get("es_admin", False)
+    }
 
+# =====================================================
+# INICIO
+# =====================================================
 
-@app.context_processor
-def agregar_usuario_actual():
-    return {"usuario_actual": session.get("usuario")}
-
-
-@app.errorhandler(Error)
-def manejar_error_mysql(error):
-    return (
-        "Error al conectar con MySQL. Revisa que la base 'copa_renault' exista "
-        f"y que los datos de conexion sean correctos. Detalle: {error}",
-        500,
-    )
-
-
-@app.route("/")
+@aplicacion.route("/")
 def index():
+
     return render_template("index.html")
 
+# =====================================================
+# REGISTRO
+# =====================================================
 
-@app.route("/contacto")
-def contacto():
-    return render_template("contacto.html")
-
-
-@app.route("/registro", methods=["GET", "POST"])
+@aplicacion.route("/registro", methods=["GET", "POST"])
 def registro():
+
     if request.method == "POST":
-        usuario = request.form.get("usuario", "").strip()
-        password = request.form.get("password", "")
 
-        if not usuario or not password:
-            flash("Completa usuario y contrasena.", "error")
-            return render_template("registro.html")
+        usuario = request.form["usuario"]
+        password = request.form["password"]
 
-        usuario_existente = ejecutar_consulta(
-            "SELECT id FROM usuario WHERE usuario = %s",
-            (usuario,),
-            traer_uno=True,
-        )
-        if usuario_existente:
-            flash("Ese usuario ya existe.", "error")
-            return render_template("registro.html")
+        existe = db.collection("usuarios") \
+            .where("usuario", "==", usuario) \
+            .get()
 
-        cantidad_usuarios = ejecutar_consulta(
-            "SELECT COUNT(*) AS cantidad FROM usuario",
-            traer_uno=True,
-        )
-        es_primer_usuario = cantidad_usuarios["cantidad"] == 0
+        if len(existe) > 0:
 
-        ejecutar_consulta(
-            """
-            INSERT INTO usuario (usuario, password_hash, es_admin)
-            VALUES (%s, %s, %s)
-            """,
-            (usuario, generate_password_hash(password), es_primer_usuario),
-        )
+            flash("Ese usuario ya existe")
 
-        flash("Cuenta creada. Ya podes iniciar sesion.", "success")
-        return redirect(url_for("login"))
+            return redirect("/registro")
+
+        db.collection("usuarios").add({
+
+            "usuario": usuario,
+            "password": password,
+            "rol": "usuario"
+        })
+
+        flash("Cuenta creada")
+
+        return redirect("/login")
 
     return render_template("registro.html")
 
+# =====================================================
+# LOGIN
+# =====================================================
 
-@app.route("/login", methods=["GET", "POST"])
+@aplicacion.route("/login", methods=["GET", "POST"])
 def login():
+
     if request.method == "POST":
-        usuario = request.form.get("usuario", "").strip()
-        password = request.form.get("password", "")
-        usuario_db = ejecutar_consulta(
-            "SELECT * FROM usuario WHERE usuario = %s",
-            (usuario,),
-            traer_uno=True,
-        )
 
-        if not usuario_db or not check_password_hash(usuario_db["password_hash"], password):
-            flash("Usuario o contrasena incorrectos.", "error")
-            return render_template("login.html")
+        usuario = request.form["usuario"]
+        password = request.form["password"]
 
-        session.clear()
-        session["usuario_id"] = usuario_db["id"]
-        session["usuario"] = usuario_db["usuario"]
-        session["es_admin"] = bool(usuario_db["es_admin"])
+        usuarios = db.collection("usuarios") \
+            .where("usuario", "==", usuario) \
+            .where("password", "==", password) \
+            .get()
 
-        flash("Sesion iniciada correctamente.", "success")
-        return redirect(url_for("fixture"))
+        if len(usuarios) > 0:
+
+            datos_usuario = usuarios[0].to_dict()
+
+            session.clear()
+
+            session["usuario"] = datos_usuario["usuario"]
+            session["rol"] = datos_usuario["rol"]
+
+            if datos_usuario["rol"] == "admin":
+
+                session["es_admin"] = True
+
+            else:
+
+                session["es_admin"] = False
+
+            flash("Bienvenido")
+
+            return redirect("/fixture")
+
+        flash("Usuario o contraseña incorrectos")
+
+        return redirect("/login")
 
     return render_template("login.html")
 
+# =====================================================
+# LOGOUT
+# =====================================================
 
-@app.route("/logout")
+@aplicacion.route("/logout")
 def logout():
+
     session.clear()
-    flash("Sesion cerrada.", "success")
-    return redirect(url_for("index"))
 
+    flash("Sesion cerrada")
 
-@app.route("/fixture")
+    return redirect("/")
+
+# =====================================================
+# FIXTURE
+# =====================================================
+
+@aplicacion.route("/fixture")
 def fixture():
-    partidos = ejecutar_consulta(
-        "SELECT * FROM partido ORDER BY horario ASC, id ASC",
-        traer_todos=True,
-    )
-    fixtures_grupos = armar_fixtures_grupos(partidos)
-    tablas_posiciones = armar_tablas_posiciones(partidos, fixtures_grupos)
+
+    partidos = []
+
+    documentos = db.collection("partidos").get()
+
+    for doc in documentos:
+
+        partido = doc.to_dict()
+
+        partido["id"] = doc.id
+
+        partidos.append(partido)
+
     return render_template(
+
         "fixture.html",
+
         partidos=partidos,
+
         fixtures_grupos=fixtures_grupos,
-        tablas_posiciones=tablas_posiciones,
+
+        tablas_posiciones=tablas_posiciones
     )
 
+# =====================================================
+# CREAR PARTIDO
+# =====================================================
 
-@app.route("/admin/crear_partido", methods=["GET", "POST"])
-@admin_requerido
+@aplicacion.route("/crear_partido", methods=["POST"])
 def crear_partido():
-    if request.method == "POST":
-        partido = {
-            "equipo1": request.form.get("equipo1", "").strip(),
-            "equipo2": request.form.get("equipo2", "").strip(),
-            "deporte": request.form.get("deporte", "").strip(),
-            "rama": request.form.get("rama", "").strip(),
-            "horario": request.form.get("horario", "").strip(),
-        }
 
-        if not datos_partido_completos(partido):
-            flash("Completa los equipos, deporte, rama y horario.", "error")
-            return render_template("partido_form.html", partido=partido, accion="Crear")
+    if session.get("es_admin") != True:
 
-        ejecutar_consulta(
-            """
-            INSERT INTO partido (equipo1, equipo2, deporte, rama, horario)
-            VALUES (%s, %s, %s, %s, %s)
-            """,
-            (
-                partido["equipo1"],
-                partido["equipo2"],
-                partido["deporte"],
-                partido["rama"],
-                partido["horario"],
-            ),
-        )
+        flash("No tenes permisos")
 
-        flash("Partido creado.", "success")
-        return redirect(url_for("fixture"))
+        return redirect("/fixture")
 
-    return render_template("partido_form.html", partido=None, accion="Crear")
+    equipo1 = request.form["equipo1"]
+    equipo2 = request.form["equipo2"]
 
+    deporte = request.form["deporte"]
+    rama = request.form["rama"]
 
-@app.route("/admin/editar_partido/<int:partido_id>", methods=["GET", "POST"])
-@admin_requerido
-def editar_partido(partido_id):
-    partido = buscar_partido_o_404(partido_id)
+    horario = request.form["horario"]
 
-    if request.method == "POST":
-        partido = {
-            "id": partido_id,
-            "equipo1": request.form.get("equipo1", "").strip(),
-            "equipo2": request.form.get("equipo2", "").strip(),
-            "deporte": request.form.get("deporte", "").strip(),
-            "rama": request.form.get("rama", "").strip(),
-            "horario": request.form.get("horario", "").strip(),
-            "goles_equipo1": convertir_gol(request.form.get("goles_equipo1")),
-            "goles_equipo2": convertir_gol(request.form.get("goles_equipo2")),
-        }
+    db.collection("partidos").add({
 
-        if not datos_partido_completos(partido):
-            flash("Completa los equipos, deporte, rama y horario.", "error")
-            return render_template("partido_form.html", partido=partido, accion="Editar")
+        "equipo1": equipo1,
+        "equipo2": equipo2,
 
-        ejecutar_consulta(
-            """
-            UPDATE partido
-            SET equipo1 = %s,
-                equipo2 = %s,
-                deporte = %s,
-                rama = %s,
-                horario = %s,
-                goles_equipo1 = %s,
-                goles_equipo2 = %s
-            WHERE id = %s
-            """,
-            (
-                partido["equipo1"],
-                partido["equipo2"],
-                partido["deporte"],
-                partido["rama"],
-                partido["horario"],
-                partido["goles_equipo1"],
-                partido["goles_equipo2"],
-                partido_id,
-            ),
-        )
+        "deporte": deporte,
+        "rama": rama,
 
-        flash("Partido actualizado.", "success")
-        return redirect(url_for("fixture"))
+        "horario": horario,
 
-    return render_template("partido_form.html", partido=partido, accion="Editar")
+        "goles1": None,
+        "goles2": None
+    })
 
+    flash("Partido creado")
 
-@app.route("/admin/eliminar_partido/<int:partido_id>", methods=["POST"])
-@admin_requerido
+    return redirect("/fixture")
+
+# =====================================================
+# RESULTADO
+# =====================================================
+
+@aplicacion.route("/resultado/<id>", methods=["POST"])
+def resultado(id):
+
+    if session.get("es_admin") != True:
+
+        flash("No tenes permisos")
+
+        return redirect("/fixture")
+
+    goles1 = int(request.form["goles1"])
+    goles2 = int(request.form["goles2"])
+
+    db.collection("partidos").document(id).update({
+
+        "goles1": goles1,
+        "goles2": goles2
+    })
+
+    flash("Resultado guardado")
+
+    return redirect("/fixture")
+
+# =====================================================
+# ELIMINAR PARTIDO
+# =====================================================
+
+@aplicacion.route("/eliminar_partido/<partido_id>", methods=["POST"])
 def eliminar_partido(partido_id):
-    buscar_partido_o_404(partido_id)
-    ejecutar_consulta("DELETE FROM partido WHERE id = %s", (partido_id,))
-    flash("Partido eliminado.", "success")
-    return redirect(url_for("fixture"))
 
+    if session.get("es_admin") != True:
 
-def buscar_partido_o_404(partido_id):
-    partido = ejecutar_consulta(
-        "SELECT * FROM partido WHERE id = %s",
-        (partido_id,),
-        traer_uno=True,
-    )
-    if not partido:
-        abort(404)
-    return partido
+        flash("No tenes permisos")
 
+        return redirect("/fixture")
 
-def armar_fixtures_grupos(partidos):
-    deportes = ["Futbol", "Voley", "Basquet"]
-    return [
-        {
-            "deporte": deporte,
-            "grupos": armar_grupos(
-                [partido for partido in partidos if partido["deporte"] == deporte]
-            ),
-        }
-        for deporte in deportes
-    ]
+    db.collection("partidos").document(partido_id).delete()
 
+    flash("Partido eliminado")
 
-def armar_grupos(partidos):
-    equipos = []
+    return redirect("/fixture")
 
-    for partido in partidos:
-        for nombre_equipo in (partido["equipo1"], partido["equipo2"]):
-            if nombre_equipo and nombre_equipo not in equipos:
-                equipos.append(nombre_equipo)
-
-    for numero in range(len(equipos) + 1, 17):
-        equipos.append(f"EQUIPO {numero}")
-
-    return [
-        {"nombre": f"GRUPO {numero}", "equipos": equipos[inicio : inicio + 4]}
-        for numero, inicio in enumerate(range(0, 16, 4), start=1)
-    ]
-
-
-def armar_tablas_posiciones(partidos, fixtures_grupos):
-    tablas = []
-
-    for fixture_grupos in fixtures_grupos:
-        deporte = fixture_grupos["deporte"]
-        for grupo in fixture_grupos["grupos"]:
-            equipos_grupo = grupo["equipos"]
-            tabla = {
-                equipo: {
-                    "equipo": equipo,
-                    "pj": 0,
-                    "g": 0,
-                    "e": 0,
-                    "p": 0,
-                    "gf": 0,
-                    "gc": 0,
-                    "pts": 0,
-                }
-                for equipo in equipos_grupo
-            }
-
-            for partido in partidos:
-                if partido["deporte"] != deporte:
-                    continue
-                if partido["equipo1"] not in tabla or partido["equipo2"] not in tabla:
-                    continue
-                if partido["goles_equipo1"] is None or partido["goles_equipo2"] is None:
-                    continue
-
-                equipo1 = tabla[partido["equipo1"]]
-                equipo2 = tabla[partido["equipo2"]]
-                goles1 = partido["goles_equipo1"]
-                goles2 = partido["goles_equipo2"]
-
-                equipo1["pj"] += 1
-                equipo2["pj"] += 1
-                equipo1["gf"] += goles1
-                equipo1["gc"] += goles2
-                equipo2["gf"] += goles2
-                equipo2["gc"] += goles1
-
-                if goles1 > goles2:
-                    equipo1["g"] += 1
-                    equipo2["p"] += 1
-                    equipo1["pts"] += 3
-                elif goles2 > goles1:
-                    equipo2["g"] += 1
-                    equipo1["p"] += 1
-                    equipo2["pts"] += 3
-                else:
-                    equipo1["e"] += 1
-                    equipo2["e"] += 1
-                    equipo1["pts"] += 1
-                    equipo2["pts"] += 1
-
-            posiciones = sorted(
-                tabla.values(),
-                key=lambda fila: (
-                    fila["pts"],
-                    fila["gf"] - fila["gc"],
-                    fila["gf"],
-                ),
-                reverse=True,
-            )
-            tablas.append(
-                {
-                    "deporte": deporte,
-                    "grupo": grupo["nombre"],
-                    "posiciones": posiciones,
-                }
-            )
-
-    return tablas
-
-
-def datos_partido_completos(partido):
-    return (
-        partido["equipo1"]
-        and partido["equipo2"]
-        and partido["deporte"]
-        and partido["rama"]
-        and partido["horario"]
-    )
-
-
-def convertir_gol(valor):
-    if valor is None or valor.strip() == "":
-        return None
-    return int(valor)
-
-
-@app.cli.command("init-db")
-def init_db():
-    ruta_schema = os.path.join(app.root_path, "schema.sql")
-    with open(ruta_schema, encoding="utf-8") as archivo:
-        sql = archivo.read()
-
-    conexion = conectar_db(usar_base=False)
-    cursor = conexion.cursor()
-
-    try:
-        for consulta in sql.split(";"):
-            if consulta.strip():
-                cursor.execute(consulta)
-        conexion.commit()
-        print("Base de datos inicializada.")
-    finally:
-        cursor.close()
-        conexion.close()
-
+# =====================================================
+# MAIN
+# =====================================================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+
+    aplicacion.run(debug=True)

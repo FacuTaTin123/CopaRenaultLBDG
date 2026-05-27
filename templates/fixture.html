@@ -3,127 +3,357 @@
 {% block title %}Fixture - Copa Renault{% endblock %}
 
 {% block body %}
-  <div class="button-row">
-    <h1 class="page-title">Fixture</h1>
-    {% if session.es_admin %}
-      <a class="btn btn-primary" href="{{ url_for('crear_partido') }}">Crear partido</a>
-    {% endif %}
-  </div>
 
-  <section class="sports-shell">
-    {% for fixture_grupos in fixtures_grupos %}
-      <article class="sport-board">
-        <div class="groups-grid">
-          {% for grupo in fixture_grupos.grupos %}
-            <section class="grupo">
-              <h3>{{ fixture_grupos.deporte }} - {{ grupo.nombre }}</h3>
-              <table>
-                <tbody>
-                  {% for equipo in grupo.equipos %}
-                    <tr>
-                      <td>{{ equipo }}</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </section>
-          {% endfor %}
-        </div>
+<div class="button-row">
 
-        <div class="field-panel">
-          <div
-            class="field-photo {% if fixture_grupos.deporte == 'Voley' %}field-voley{% elif fixture_grupos.deporte == 'Basquet' %}field-basquet{% else %}field-futbol{% endif %}"
-            aria-label="Cancha de {{ fixture_grupos.deporte }}"
-          >
-            <span class="field-zone">1</span>
-            <span class="field-zone">2</span>
-            <span class="field-zone">3</span>
-            <span class="field-zone">4</span>
-          </div>
-        </div>
-      </article>
-    {% endfor %}
-  </section>
+  <h1 class="page-title">
+    Fixture
+  </h1>
 
-  <section class="fixture-panel">
-    <div class="filter-row">
-      <span class="pill">Futbol Masculino</span>
-      <span class="pill">Basquet Masculino</span>
-      <span class="pill">Voley Femenino</span>
+  {% if session.get("es_admin") %}
+  
+    <span class="btn btn-primary">
+      Modo Administrador
+    </span>
+
+  {% endif %}
+
+</div>
+
+<!-- ================================================= -->
+<!-- CREAR PARTIDO SOLO ADMIN -->
+<!-- ================================================= -->
+
+{% if session.get("es_admin") %}
+
+<section class="fixture-panel">
+
+  <h2 class="panel-title">
+    Crear Partido
+  </h2>
+
+  <form
+    method="POST"
+    action="{{ url_for('crear_partido') }}"
+    class="form-stack"
+    id="formPartido"
+  >
+
+    <input
+      type="text"
+      name="equipo1"
+      placeholder="Equipo 1"
+      required
+    >
+
+    <input
+      type="text"
+      name="equipo2"
+      placeholder="Equipo 2"
+      required
+    >
+
+    <!-- ========================= -->
+    <!-- DEPORTE -->
+    <!-- ========================= -->
+    <div class="slider-group">
+      <p>Deporte</p>
+
+      <div class="toggle-group">
+        <label class="toggle">
+          <input type="radio" name="deporte" value="Futbol" required>
+          <span>Fútbol</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="deporte" value="Basquet">
+          <span>Básquet</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="deporte" value="Voley">
+          <span>Vóley</span>
+        </label>
+      </div>
     </div>
 
-    {% if partidos %}
-      <div class="match-list">
-        {% for partido in partidos %}
-          <article class="match-card">
-            <div class="match-meta">
-              <span>{{ partido.deporte }} {{ partido.rama }}</span>
-              <span>{{ partido.horario }} HS</span>
-              <span>CANCHA {{ loop.index }}</span>
-            </div>
+    <!-- ========================= -->
+    <!-- CATEGORÍA -->
+    <!-- ========================= -->
+    <div class="slider-group">
+      <p>Categoría</p>
 
-            <div class="match-body">
-              <span>{{ partido.equipo1 }}</span>
-              <span>VS</span>
-              <span>{{ partido.equipo2 }}</span>
-              <span class="score">
-                {% if partido.goles_equipo1 is not none and partido.goles_equipo2 is not none %}
-                  {{ partido.goles_equipo1 }} - {{ partido.goles_equipo2 }}
-                {% else %}
-                  Pendiente
-                {% endif %}
-              </span>
-            </div>
+      <div class="toggle-group">
+        <label class="toggle">
+          <input type="radio" name="categoria" value="Menor" required>
+          <span>Menor</span>
+        </label>
 
-            {% if session.es_admin %}
-              <div class="match-actions">
-                <a class="link-button" href="{{ url_for('editar_partido', partido_id=partido.id) }}">Editar</a>
-                <form method="post" action="{{ url_for('eliminar_partido', partido_id=partido.id) }}">
-                  <button class="link-button" type="submit">Eliminar</button>
-                </form>
-              </div>
-            {% endif %}
-          </article>
-        {% endfor %}
+        <label class="toggle">
+          <input type="radio" name="categoria" value="Intermedia">
+          <span>Intermedia</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="categoria" value="Mayor">
+          <span>Mayor</span>
+        </label>
       </div>
-    {% else %}
-      <p>Todavia no hay partidos cargados.</p>
-    {% endif %}
-  </section>
+    </div>
 
-  <section class="positions-wrap">
-    {% for tabla in tablas_posiciones %}
-      <article class="positions-card">
-        <h3>Tabla de posiciones - {{ tabla.deporte }} {{ tabla.grupo }}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Equipo</th>
-              <th>PJ</th>
-              <th>G</th>
-              <th>E</th>
-              <th>P</th>
-              <th>GF</th>
-              <th>GC</th>
-              <th>PTS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for fila in tabla.posiciones %}
-              <tr>
-                <td>{{ fila.equipo }}</td>
-                <td>{{ fila.pj }}</td>
-                <td>{{ fila.g }}</td>
-                <td>{{ fila.e }}</td>
-                <td>{{ fila.p }}</td>
-                <td>{{ fila.gf }}</td>
-                <td>{{ fila.gc }}</td>
-                <td>{{ fila.pts }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </article>
-    {% endfor %}
-  </section>
+    <!-- ========================= -->
+    <!-- RAMA -->
+    <!-- ========================= -->
+    <div class="slider-group">
+      <p>Rama</p>
+
+      <div class="toggle-group">
+        <label class="toggle">
+          <input type="radio" name="rama" value="Masculino" required>
+          <span>Masculino</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="rama" value="Femenino">
+          <span>Femenino</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- CANCHA (NUEVO) -->
+    <!-- ========================= -->
+    <div class="slider-group">
+      <p>Cancha</p>
+
+      <div class="toggle-group">
+        <label class="toggle">
+          <input type="radio" name="cancha" value="1" required>
+          <span>Cancha 1</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="cancha" value="2">
+          <span>Cancha 2</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="cancha" value="3">
+          <span>Cancha 3</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="cancha" value="4">
+          <span>Cancha 4</span>
+        </label>
+      </div>
+    </div>
+
+    <input
+      type="time"
+      name="horario"
+      required
+    >
+
+    <button
+      class="btn btn-primary"
+      type="submit"
+    >
+      Crear Partido
+    </button>
+
+  </form>
+
+</section>
+
+{% endif %}
+
+<!-- ================================================= -->
+<!-- LISTA DE PARTIDOS -->
+<!-- ================================================= -->
+
+<section class="fixture-panel">
+
+  <div class="filter-row">
+
+    <span class="pill">Futbol Masculino</span>
+    <span class="pill">Basquet Masculino</span>
+    <span class="pill">Voley Femenino</span>
+
+  </div>
+
+  {% if partidos %}
+
+    <div class="match-list">
+
+      {% for partido in partidos %}
+
+        <article class="match-card">
+
+          <div class="match-meta">
+
+            <span>
+              {{ partido.deporte }} {{ partido.rama }}
+            </span>
+
+            <span>
+              {{ partido.horario }} HS
+            </span>
+
+            <span>
+              CANCHA {{ partido.cancha if partido.cancha else loop.index }}
+            </span>
+
+          </div>
+
+          <div class="match-body">
+
+            <span>{{ partido.equipo1 }}</span>
+            <span>VS</span>
+            <span>{{ partido.equipo2 }}</span>
+
+            <span class="score">
+
+              {% if partido.goles1 is not none and partido.goles2 is not none %}
+                {{ partido.goles1 }} - {{ partido.goles2 }}
+              {% else %}
+                Pendiente
+              {% endif %}
+
+            </span>
+
+          </div>
+
+          {% if session.get("es_admin") %}
+
+          <div class="match-actions">
+
+            <form
+              method="POST"
+              action="{{ url_for('resultado', id=partido.id) }}"
+              style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"
+            >
+
+              <input type="number" name="goles1" placeholder="Goles 1" required>
+              <input type="number" name="goles2" placeholder="Goles 2" required>
+
+              <button class="btn" type="submit">
+                Guardar Resultado
+              </button>
+
+            </form>
+
+            <form
+              method="POST"
+              action="{{ url_for('eliminar_partido', partido_id=partido.id) }}"
+            >
+
+              <button class="btn" type="submit">
+                Eliminar
+              </button>
+
+            </form>
+
+          </div>
+
+          {% endif %}
+
+        </article>
+
+      {% endfor %}
+
+    </div>
+
+  {% else %}
+
+    <p>Todavia no hay partidos cargados.</p>
+
+  {% endif %}
+
+</section>
+
+<!-- ================================================= -->
+<!-- ESTILOS TOGGLE -->
+<!-- ================================================= -->
+
+<style>
+.slider-group {
+  margin: 15px 0;
+}
+
+.slider-group p {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.toggle-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  cursor: pointer;
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle span {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  transition: 0.2s;
+}
+
+.toggle input:checked + span {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.toggle input:disabled + span {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+</style>
+
+<!-- ================================================= -->
+<!-- LÓGICA JS -->
+<!-- ================================================= -->
+
+<script>
+const deporteInputs = document.querySelectorAll('input[name="deporte"]');
+const categoriaInputs = document.querySelectorAll('input[name="categoria"]');
+const ramaInputs = document.querySelectorAll('input[name="rama"]');
+
+function setDisabled(inputs, conditionFn) {
+  inputs.forEach(input => {
+    input.disabled = !conditionFn(input.value);
+    if (input.disabled) input.checked = false;
+  });
+}
+
+function actualizarRestricciones() {
+  const deporte = document.querySelector('input[name="deporte"]:checked')?.value;
+
+  if (!deporte) return;
+
+  if (deporte === "Basquet") {
+    setDisabled(categoriaInputs, v => v === "Mayor");
+    setDisabled(ramaInputs, v => v === "Masculino");
+  } else {
+    setDisabled(categoriaInputs, () => true);
+    setDisabled(ramaInputs, () => true);
+  }
+}
+
+deporteInputs.forEach(input => {
+  input.addEventListener("change", actualizarRestricciones);
+});
+</script>
+
 {% endblock %}

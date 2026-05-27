@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>{% block title %}Copa Renault{% endblock %}</title>
+
   <style>
+
     :root {
       --amarillo: #f4c247;
       --amarillo-claro: #ffdd56;
@@ -447,18 +450,40 @@
     .match-actions {
       display: flex;
       gap: 12px;
+      align-items: center;
       justify-content: flex-end;
-      padding: 0 20px 16px;
+      flex-wrap: wrap;
+      padding: 0 20px 20px;
     }
 
     .link-button {
-      border: 0;
-      background: none;
-      color: #111;
-      font: inherit;
+      min-height: 42px;
+      padding: 0 18px;
+      border: 2px solid var(--negro);
+      border-radius: 999px;
+      background: var(--azul);
       font-weight: 800;
       cursor: pointer;
-      text-decoration: underline;
+      box-shadow: 3px 4px 0 var(--negro);
+    }
+
+    .match-create-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .resultado-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .resultado-form input {
+      width: 90px;
+      min-width: 90px;
     }
 
     .positions-wrap {
@@ -518,6 +543,7 @@
     }
 
     @media (max-width: 900px) {
+
       .topbar {
         justify-content: flex-start;
         overflow-x: auto;
@@ -540,9 +566,11 @@
       .score {
         white-space: normal;
       }
+
     }
 
     @media (max-width: 620px) {
+
       main {
         width: min(100% - 20px, 1320px);
         padding-top: 22px;
@@ -574,24 +602,39 @@
       .positions-card {
         box-shadow: 8px 8px 0 var(--negro);
       }
+
     }
+
   </style>
 </head>
+
 <body>
+
   {% include "navbar.html" %}
 
   {% with mensajes = get_flashed_messages(with_categories=true) %}
     {% if mensajes %}
+
       <section class="flash-list">
+
         {% for categoria, mensaje in mensajes %}
-          <p class="{{ categoria }}">{{ mensaje }}</p>
+
+          <p class="{{ categoria }}">
+            {{ mensaje }}
+          </p>
+
         {% endfor %}
+
       </section>
+
     {% endif %}
   {% endwith %}
 
   <main>
+
     {% block body %}{% endblock %}
+
   </main>
+
 </body>
 </html>
