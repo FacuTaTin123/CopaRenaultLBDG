@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Tablas{% endblock %}
+
+{% block body %}
+
+<h1 class="page-title">
+  Tablas de Posiciones
+</h1>
+
+<!-- =============================================== -->
+<!-- FILTROS -->
+<!-- =============================================== -->
+
+<div class="filtros-tabla">
+
+  <input
+    type="text"
+    id="busqueda"
+    placeholder="Buscar deporte, categoría, tipo o zona..."
+  >
+
+</div>
+
+<!-- =============================================== -->
+<!-- TABLAS -->
+<!-- =============================================== -->
+
+<div id="contenedor-tablas">
+
+{% for tabla in tablas %}
+
+<section
+  class="fixture-panel tabla-box"
+  data-texto="
+    {{ tabla.info.deporte }}
+    {{ tabla.info.categoria }}
+    {{ tabla.info.tipo }}
+    {{ tabla.info.zona }}
+  "
+>
+
+  <h2 class="panel-title">
+
+    {{ tabla.info.deporte }}
+    -
+    {{ tabla.info.categoria }}
+    -
+    {{ tabla.info.tipo }}
+    -
+    Zona {{ tabla.info.zona }}
+
+  </h2>
+
+  <div style="overflow-x:auto;">
+
+    <table class="tabla-posiciones">
+
+      <thead>
+
+        <tr>
+
+          <th>Equipo</th>
+          <th>PTS</th>
+          <th>GF</th>
+          <th>GC</th>
+          <th>DG</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {% for equipo in tabla.equipos %}
+
+        <tr>
+
+          <td>{{ equipo.nombre }}</td>
+
+          <td>{{ equipo.puntos }}</td>
+
+          <td>{{ equipo.gf }}</td>
+
+          <td>{{ equipo.gc }}</td>
+
+          <td>{{ equipo.dg }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+{% endfor %}
+
+</div>
+
+<!-- =============================================== -->
+<!-- CSS -->
+<!-- =============================================== -->
+
+<style>
+
+.filtros-tabla {
+  margin: 20px 0;
+}
+
+.filtros-tabla input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.tabla-posiciones {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.tabla-posiciones th,
+.tabla-posiciones td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.tabla-posiciones th {
+  background: #007bff;
+  color: white;
+}
+
+.tabla-posiciones tr:nth-child(even) {
+  background: #f5f5f5;
+}
+
+</style>
+
+<!-- =============================================== -->
+<!-- JS -->
+<!-- =============================================== -->
+
+<script>
+
+const buscador = document.getElementById("busqueda");
+
+const tablas = document.querySelectorAll(".tabla-box");
+
+buscador.addEventListener("input", () => {
+
+  const texto = buscador.value.toLowerCase();
+
+  tablas.forEach(tabla => {
+
+    const contenido =
+      tabla.dataset.texto.toLowerCase();
+
+    if (contenido.includes(texto)) {
+
+      tabla.style.display = "block";
+
+    } else {
+
+      tabla.style.display = "none";
+    }
+
+  });
+
+});
+
+</script>
+
+{% endblock %}

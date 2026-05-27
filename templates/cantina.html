@@ -1,44 +1,296 @@
 {% extends "base.html" %}
 
+{% block title %}Cantina{% endblock %}
+
 {% block body %}
 
-<h1>Cantina</h1>
+<div class="button-row">
 
-<!-- ================= ADMIN ================= -->
-{% if es_admin %}
+  <h1 class="page-title">
+    Cantina
+  </h1>
 
-<form method="POST" action="/cantina/agregar">
+  {% if session.get("es_admin") %}
 
-  <input type="text" name="nombre" placeholder="Producto" required>
-  <input type="number" name="precio" placeholder="Precio" required>
-
-  <button type="submit">Agregar</button>
-
-</form>
-
-{% endif %}
-
-<hr>
-
-<!-- ================= PRODUCTOS ================= -->
-
-{% for p in productos %}
-
-<div class="card">
-
-  <h3>{{ p.nombre }}</h3>
-  <p>$ {{ p.precio }}</p>
-
-  {% if es_admin %}
-
-  <form method="POST" action="/cantina/eliminar/{{ p.id }}">
-    <button>Eliminar</button>
-  </form>
+    <span class="btn btn-primary">
+      Modo Administrador
+    </span>
 
   {% endif %}
 
 </div>
 
-{% endfor %}
+<!-- ========================================= -->
+<!-- AGREGAR PRODUCTO -->
+<!-- ========================================= -->
+
+{% if session.get("es_admin") %}
+
+<section class="fixture-panel">
+
+  <h2 class="panel-title">
+    Agregar Producto
+  </h2>
+
+  <form
+    method="POST"
+    action="{{ url_for('agregar_producto') }}"
+    class="form-stack"
+  >
+
+    <input
+      type="text"
+      name="nombre"
+      placeholder="Nombre del producto"
+      required
+    >
+
+    <input
+      type="number"
+      name="precio"
+      placeholder="Precio"
+      required
+    >
+
+    <button
+      class="btn btn-primary"
+      type="submit"
+    >
+      Agregar Producto
+    </button>
+
+  </form>
+
+</section>
+
+{% endif %}
+
+<!-- ========================================= -->
+<!-- BUSCADOR -->
+<!-- ========================================= -->
+
+<section class="fixture-panel">
+
+  <input
+    type="text"
+    id="buscador"
+    placeholder="Buscar producto..."
+    class="buscador"
+  >
+
+</section>
+
+<!-- ========================================= -->
+<!-- PRODUCTOS -->
+<!-- ========================================= -->
+
+<section class="productos-grid" id="productosGrid">
+
+  {% for producto in productos %}
+
+  <article
+    class="producto-card"
+    data-nombre="{{ producto.nombre }}"
+  >
+
+    <div class="producto-top">
+
+      <div class="producto-icono">
+        
+      </div>
+
+      <div>
+
+        <h2 class="producto-nombre">
+          {{ producto.nombre }}
+        </h2>
+
+        <p class="producto-precio">
+          $ {{ producto.precio }}
+        </p>
+
+      </div>
+
+    </div>
+
+    {% if session.get("es_admin") %}
+
+    <form
+      method="POST"
+      action="{{ url_for('eliminar_producto', id=producto.id) }}"
+    >
+
+      <button
+        class="btn btn-danger"
+        type="submit"
+      >
+        Eliminar
+      </button>
+
+    </form>
+
+    {% endif %}
+
+  </article>
+
+  {% endfor %}
+
+</section>
+
+<!-- ========================================= -->
+<!-- CSS -->
+<!-- ========================================= -->
+
+<style>
+
+.productos-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(250px, 1fr));
+
+  gap: 20px;
+
+  margin-top: 20px;
+}
+
+.producto-card {
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 20px;
+
+  box-shadow:
+    0 4px 15px rgba(0,0,0,0.08);
+
+  transition: 0.2s;
+}
+
+.producto-card:hover {
+
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,0.12);
+}
+
+.producto-top {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.producto-icono {
+
+  width: 60px;
+
+  height: 60px;
+
+  border-radius: 15px;
+
+  background: #007bff;
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 28px;
+}
+
+.producto-nombre {
+
+  margin: 0;
+
+  font-size: 22px;
+}
+
+.producto-precio {
+
+  margin-top: 5px;
+
+  color: #007bff;
+
+  font-size: 20px;
+
+  font-weight: bold;
+}
+
+.buscador {
+
+  width: 100%;
+
+  padding: 14px;
+
+  border-radius: 12px;
+
+  border: 1px solid #ccc;
+
+  font-size: 16px;
+}
+
+.btn-danger {
+
+  background: #dc3545;
+
+  color: white;
+
+  border: none;
+}
+
+.btn-danger:hover {
+
+  background: #bb2d3b;
+}
+
+</style>
+
+<!-- ========================================= -->
+<!-- JS BUSCADOR -->
+<!-- ========================================= -->
+
+<script>
+
+const buscador =
+  document.getElementById("buscador");
+
+const productos =
+  document.querySelectorAll(".producto-card");
+
+buscador.addEventListener("input", () => {
+
+  const texto =
+    buscador.value.toLowerCase();
+
+  productos.forEach(producto => {
+
+    const nombre =
+      producto.dataset.nombre.toLowerCase();
+
+    if (nombre.includes(texto)) {
+
+      producto.style.display = "block";
+
+    } else {
+
+      producto.style.display = "none";
+    }
+
+  });
+
+});
+
+</script>
 
 {% endblock %}

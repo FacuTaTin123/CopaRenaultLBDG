@@ -21,7 +21,7 @@
 </div>
 
 <!-- ================================================= -->
-<!-- CREAR PARTIDO SOLO ADMIN -->
+<!-- CREAR PARTIDO -->
 <!-- ================================================= -->
 
 {% if session.get("es_admin") %}
@@ -39,116 +39,215 @@
     id="formPartido"
   >
 
-    <input type="text" name="equipo1" placeholder="Equipo 1" required>
-    <input type="text" name="equipo2" placeholder="Equipo 2" required>
+    <input
+      type="text"
+      name="equipo1"
+      placeholder="Equipo 1"
+      required
+    >
+
+    <input
+      type="text"
+      name="equipo2"
+      placeholder="Equipo 2"
+      required
+    >
 
     <!-- ========================= -->
     <!-- DEPORTE -->
     <!-- ========================= -->
+
     <div class="slider-group">
+
       <p>Deporte</p>
 
       <div class="toggle-group">
 
         <label class="toggle">
-          <input type="radio" name="deporte" value="Futbol" required>
+          <input
+            type="radio"
+            name="deporte"
+            value="Futbol"
+            required
+          >
           <span>Fútbol</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="deporte" value="Basquet">
+          <input
+            type="radio"
+            name="deporte"
+            value="Basquet"
+          >
           <span>Básquet</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="deporte" value="Voley">
+          <input
+            type="radio"
+            name="deporte"
+            value="Voley"
+          >
           <span>Vóley</span>
         </label>
 
       </div>
+
     </div>
 
     <!-- ========================= -->
-    <!-- CATEGORÍA -->
+    <!-- CATEGORIA -->
     <!-- ========================= -->
+
     <div class="slider-group">
+
       <p>Categoría</p>
 
       <div class="toggle-group">
 
         <label class="toggle">
-          <input type="radio" name="categoria" value="Menor" required>
+          <input
+            type="radio"
+            name="categoria"
+            value="Menor"
+            required
+          >
           <span>Menor</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="categoria" value="Intermedia">
+          <input
+            type="radio"
+            name="categoria"
+            value="Intermedia"
+          >
           <span>Intermedia</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="categoria" value="Mayor">
+          <input
+            type="radio"
+            name="categoria"
+            value="Mayor"
+          >
           <span>Mayor</span>
         </label>
 
       </div>
+
     </div>
 
+<!-- ========================= -->
+<!-- ZONA -->
+<!-- ========================= -->
+
+<div class="slider-group">
+
+  <p>Zona</p>
+
+  <input
+    type="text"
+    name="zona"
+    placeholder="Ej: A, B, C..."
+    required
+  >
+
+</div>
+
     <!-- ========================= -->
-    <!-- RAMA -->
+    <!-- TIPO -->
     <!-- ========================= -->
+
     <div class="slider-group">
-      <p>Rama</p>
+
+      <p>Tipo</p>
 
       <div class="toggle-group">
 
         <label class="toggle">
-          <input type="radio" name="rama" value="Masculino" required>
+          <input
+            type="radio"
+            name="tipo"
+            value="Masculino"
+            required
+          >
           <span>Masculino</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="rama" value="Femenino">
+          <input
+            type="radio"
+            name="tipo"
+            value="Femenino"
+          >
           <span>Femenino</span>
         </label>
 
       </div>
+
     </div>
 
     <!-- ========================= -->
     <!-- CANCHA -->
     <!-- ========================= -->
+
     <div class="slider-group">
+
       <p>Cancha</p>
 
       <div class="toggle-group">
 
         <label class="toggle">
-          <input type="radio" name="cancha" value="1" required>
+          <input
+            type="radio"
+            name="cancha"
+            value="1"
+            required
+          >
           <span>Cancha 1</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="cancha" value="2">
+          <input
+            type="radio"
+            name="cancha"
+            value="2"
+          >
           <span>Cancha 2</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="cancha" value="3">
+          <input
+            type="radio"
+            name="cancha"
+            value="3"
+          >
           <span>Cancha 3</span>
         </label>
 
         <label class="toggle">
-          <input type="radio" name="cancha" value="4">
+          <input
+            type="radio"
+            name="cancha"
+            value="4"
+          >
           <span>Cancha 4</span>
         </label>
 
       </div>
+
     </div>
 
-    <input type="time" name="horario" required>
+    <input
+      type="time"
+      name="horario"
+      required
+    >
 
-    <button class="btn btn-primary" type="submit">
+    <button
+      class="btn btn-primary"
+      type="submit"
+    >
       Crear Partido
     </button>
 
@@ -159,18 +258,109 @@
 {% endif %}
 
 <!-- ================================================= -->
-<!-- LISTA DE PARTIDOS -->
+<!-- FILTROS -->
 <!-- ================================================= -->
 
 <section class="fixture-panel">
 
-  <div class="filter-row">
+  <div class="filter-box">
 
-    <span class="pill">Futbol Masculino</span>
-    <span class="pill">Basquet Masculino</span>
-    <span class="pill">Voley Femenino</span>
+    <!-- FILTRO DEPORTE -->
+
+    <div class="slider-group">
+
+      <p>Filtrar Deporte</p>
+
+      <div class="toggle-group">
+
+        <label class="toggle">
+          <input type="radio" name="filtroDeporte" value="Todos" checked>
+          <span>Todos</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroDeporte" value="Futbol">
+          <span>Fútbol</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroDeporte" value="Basquet">
+          <span>Básquet</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroDeporte" value="Voley">
+          <span>Vóley</span>
+        </label>
+
+      </div>
+
+    </div>
+
+    <!-- FILTRO CATEGORIA -->
+
+    <div class="slider-group">
+
+      <p>Filtrar Categoría</p>
+
+      <div class="toggle-group">
+
+        <label class="toggle">
+          <input type="radio" name="filtroCategoria" value="Todos" checked>
+          <span>Todos</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroCategoria" value="Menor">
+          <span>Menor</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroCategoria" value="Intermedia">
+          <span>Intermedia</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroCategoria" value="Mayor">
+          <span>Mayor</span>
+        </label>
+
+      </div>
+
+    </div>
+
+    <!-- FILTRO TIPO -->
+
+    <div class="slider-group">
+
+      <p>Filtrar Tipo</p>
+
+      <div class="toggle-group">
+
+        <label class="toggle">
+          <input type="radio" name="filtroTipo" value="Todos" checked>
+          <span>Todos</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroTipo" value="Masculino">
+          <span>Masculino</span>
+        </label>
+
+        <label class="toggle">
+          <input type="radio" name="filtroTipo" value="Femenino">
+          <span>Femenino</span>
+        </label>
+
+      </div>
+
+    </div>
 
   </div>
+
+  <!-- ================================================= -->
+  <!-- PARTIDOS -->
+  <!-- ================================================= -->
 
   {% if partidos %}
 
@@ -178,72 +368,174 @@
 
       {% for partido in partidos %}
 
-        <article class="match-card">
+      <article
+        class="match-card"
+        data-deporte="{{ partido.deporte }}"
+        data-categoria="{{ partido.categoria }}"
+        data-tipo="{{ partido.tipo }}"
+      >
 
-          <div class="match-meta">
+        <div class="match-meta">
 
-            <span>
-              {{ partido.deporte }} {{ partido.rama }}
-            </span>
+          <span>
+            {{ partido.deporte }}
+            {{ partido.tipo }}
+          </span>
 
-            <span>
-              {{ partido.horario }} HS
-            </span>
+          <span>
+            {{ partido.categoria }}
+          </span>
 
-            <span>
-              CANCHA {{ partido.cancha if partido.cancha else loop.index }}
-            </span>
+          <span>
+            {{ partido.horario }} HS
+          </span>
 
-          </div>
+          <span>
+            CANCHA {{ partido.cancha }}
+          </span>
 
-          <div class="match-body">
+        </div>
 
-            <span>{{ partido.equipo1 }}</span>
-            <span>VS</span>
-            <span>{{ partido.equipo2 }}</span>
+        <div class="match-body">
 
-            <span class="score">
+          <span>{{ partido.equipo1 }}</span>
 
-              {% if partido.goles1 is not none and partido.goles2 is not none %}
-                {{ partido.goles1 }} - {{ partido.goles2 }}
-              {% else %}
-                Pendiente
-              {% endif %}
+          <span>VS</span>
 
-            </span>
+          <span>{{ partido.equipo2 }}</span>
 
-          </div>
+          <span class="score">
 
-          {% if session.get("es_admin") %}
+            {% if partido.goles1 is not none and partido.goles2 is not none %}
 
-          <div class="match-actions">
+              {{ partido.goles1 }} - {{ partido.goles2 }}
 
-            <form method="POST" action="{{ url_for('resultado', id=partido.id) }}"
-              style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            {% else %}
 
-              <input type="number" name="goles1" placeholder="Goles 1" required>
-              <input type="number" name="goles2" placeholder="Goles 2" required>
+              Pendiente
 
-              <button class="btn" type="submit">
-                Guardar Resultado
-              </button>
+            {% endif %}
 
-            </form>
+          </span>
 
-            <form method="POST"
-              action="{{ url_for('eliminar_partido', id=partido.id) }}">
+        </div>
 
-              <button class="btn" type="submit">
-                Eliminar
-              </button>
+        {% if session.get("es_admin") %}
 
-            </form>
+        <div class="match-actions">
 
-          </div>
+          <form
+            method="POST"
+            action="{{ url_for('resultado', id=partido.id) }}"
+            style="display:flex; gap:10px; flex-wrap:wrap;"
+          >
 
-          {% endif %}
+            <input
+              type="number"
+              name="goles1"
+              placeholder="Goles 1"
+              required
+            >
 
-        </article>
+            <input
+              type="number"
+              name="goles2"
+              placeholder="Goles 2"
+              required
+            >
+
+            <button class="btn" type="submit">
+              Guardar Resultado
+            </button>
+
+          </form>
+
+          <form
+            method="POST"
+            action="{{ url_for('eliminar_partido', id=partido.id) }}"
+          >
+
+            <button class="btn" type="submit">
+              Eliminar
+            </button>
+
+          </form>
+
+        </div>
+
+        {% endif %}
+
+      </article>
+
+      <!-- ================================================= -->
+<!-- s DE POSICIONES -->
+<!-- ================================================= -->
+
+<section class="fixture-panel">
+
+  <h2 class="panel-title">
+    Tabla de Posiciones
+  </h2>
+
+  {% if tabla_posiciones %}
+
+  <div style="overflow-x:auto;">
+
+    <table class="tabla-posiciones">
+
+      <thead>
+
+        <tr>
+
+          <th>Equipo</th>
+
+          <th>PTS</th>
+
+          <th>GF</th>
+
+          <th>GC</th>
+
+          <th>DG</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {% for equipo in tabla_posiciones %}
+
+        <tr>
+
+          <td>{{ equipo.nombre }}</td>
+
+          <td>{{ equipo.puntos }}</td>
+
+          <td>{{ equipo.gf }}</td>
+
+          <td>{{ equipo.gc }}</td>
+
+          <td>{{ equipo.dg }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+
+    <p>
+      Todavía no hay datos en la tabla.
+    </p>
+
+  {% endif %}
+
+</section>
 
       {% endfor %}
 
@@ -251,17 +543,18 @@
 
   {% else %}
 
-    <p>Todavia no hay partidos cargados.</p>
+    <p>No hay partidos cargados.</p>
 
   {% endif %}
 
 </section>
 
 <!-- ================================================= -->
-<!-- ESTILOS -->
+<!-- CSS -->
 <!-- ================================================= -->
 
 <style>
+
 .slider-group {
   margin: 15px 0;
 }
@@ -288,6 +581,7 @@
   border: 1px solid #ccc;
   background: #f5f5f5;
   transition: 0.2s;
+  cursor: pointer;
 }
 
 .toggle input:checked + span {
@@ -298,52 +592,197 @@
 
 .toggle input:disabled + span {
   opacity: 0.4;
-  cursor: not-allowed;
 }
+.tabla-posiciones {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.tabla-posiciones th,
+.tabla-posiciones td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.tabla-posiciones th {
+  background: #007bff;
+  color: white;
+}
+
+.tabla-posiciones tr:nth-child(even) {
+  background: #f5f5f5;
+}
+
 </style>
 
 <!-- ================================================= -->
-<!-- JS CORREGIDO -->
+<!-- JS -->
 <!-- ================================================= -->
 
 <script>
 
-const deporteInputs = document.querySelectorAll('input[name="deporte"]');
-const categoriaInputs = document.querySelectorAll('input[name="categoria"]');
-const ramaInputs = document.querySelectorAll('input[name="rama"]');
+const deporteInputs =
+document.querySelectorAll('input[name="deporte"]');
+
+const categoriaInputs =
+document.querySelectorAll('input[name="categoria"]');
+
+const tipoInputs =
+document.querySelectorAll('input[name="tipo"]');
 
 function reset(inputs) {
+
   inputs.forEach(i => {
     i.disabled = false;
   });
+
 }
 
 function disableOnly(inputs, allowed) {
+
   inputs.forEach(i => {
+
     const ok = allowed.includes(i.value);
+
     i.disabled = !ok;
-    if (!ok) i.checked = false;
+
+    if (!ok) {
+      i.checked = false;
+    }
+
   });
+
 }
 
 function actualizarRestricciones() {
 
-  const deporte = document.querySelector('input[name="deporte"]:checked')?.value;
+  const deporte =
+  document.querySelector(
+    'input[name="deporte"]:checked'
+  )?.value;
 
-  // reset siempre primero
   reset(categoriaInputs);
-  reset(ramaInputs);
+  reset(tipoInputs);
 
   if (deporte === "Basquet") {
-    disableOnly(categoriaInputs, ["Mayor"]);
-    disableOnly(ramaInputs, ["Masculino"]);
+
+    disableOnly(
+      categoriaInputs,
+      ["Mayor"]
+    );
+
+    disableOnly(
+      tipoInputs,
+      ["Masculino"]
+    );
+
   }
 
-  // Futbol y Voley -> todo habilitado
 }
 
 deporteInputs.forEach(input => {
-  input.addEventListener("change", actualizarRestricciones);
+
+  input.addEventListener(
+    "change",
+    actualizarRestricciones
+  );
+
+});
+
+</script>
+
+<script>
+
+const filtrosDeporte =
+document.querySelectorAll(
+  'input[name="filtroDeporte"]'
+);
+
+const filtrosCategoria =
+document.querySelectorAll(
+  'input[name="filtroCategoria"]'
+);
+
+const filtrosTipo =
+document.querySelectorAll(
+  'input[name="filtroTipo"]'
+);
+
+const partidosCards =
+document.querySelectorAll('.match-card');
+
+function obtenerValor(name) {
+
+  return document.querySelector(
+    `input[name="${name}"]:checked`
+  )?.value;
+
+}
+
+function filtrarPartidos() {
+
+  const deporte =
+  obtenerValor("filtroDeporte");
+
+  const categoria =
+  obtenerValor("filtroCategoria");
+
+  const tipo =
+  obtenerValor("filtroTipo");
+
+  partidosCards.forEach(card => {
+
+    const deporteCard =
+    card.dataset.deporte;
+
+    const categoriaCard =
+    card.dataset.categoria;
+
+    const tipoCard =
+    card.dataset.tipo;
+
+    let mostrar = true;
+
+    if (
+      deporte !== "Todos" &&
+      deporteCard !== deporte
+    ) {
+      mostrar = false;
+    }
+
+    if (
+      categoria !== "Todos" &&
+      categoriaCard !== categoria
+    ) {
+      mostrar = false;
+    }
+
+    if (
+      tipo !== "Todos" &&
+      tipoCard !== tipo
+    ) {
+      mostrar = false;
+    }
+
+    card.style.display =
+    mostrar ? "block" : "none";
+
+  });
+
+}
+
+filtrosDeporte.forEach(i => {
+  i.addEventListener("change", filtrarPartidos);
+});
+
+filtrosCategoria.forEach(i => {
+  i.addEventListener("change", filtrarPartidos);
+});
+
+filtrosTipo.forEach(i => {
+  i.addEventListener("change", filtrarPartidos);
 });
 
 </script>

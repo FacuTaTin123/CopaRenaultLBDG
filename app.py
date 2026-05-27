@@ -145,18 +145,315 @@ def fixture():
 
     partidos = []
 
-    docs = db.collection("partidos").get()
+    documentos = db.collection("partidos").get()
 
-    for doc in docs:
-        p = doc.to_dict()
-        p["id"] = doc.id
-        partidos.append(p)
+    # =============================================
+    # CARGAR PARTIDOS
+    # =============================================
+
+    for doc in documentos:
+
+        partido = doc.to_dict()
+
+        partido["id"] = doc.id
+
+        partidos.append(partido)
+
+    # =============================================
+    # TABLAS
+    # =============================================
+
+    tablas = {}
+
+    for partido in partidos:
+
+        deporte = partido.get("deporte", "Sin deporte")
+
+        categoria = partido.get("categoria", "Sin categoria")
+
+        tipo = partido.get("tipo", "Sin tipo")
+
+        zona = partido.get("zona", "Sin zona")
+
+        clave = f"{deporte}-{categoria}-{tipo}-{zona}"
+
+        # =========================================
+        # CREAR TABLA
+        # =========================================
+
+        if clave not in tablas:
+
+            tablas[clave] = {
+
+                "info": {
+
+                    "deporte": deporte,
+                    "categoria": categoria,
+                    "tipo": tipo,
+                    "zona": zona
+                },
+
+                "equipos": {}
+            }
+
+        tabla = tablas[clave]["equipos"]
+
+        equipo1 = partido["equipo1"]
+        equipo2 = partido["equipo2"]
+
+        # =========================================
+        # CREAR EQUIPOS
+        # =========================================
+
+        if equipo1 not in tabla:
+
+            tabla[equipo1] = {
+
+                "nombre": equipo1,
+                "puntos": 0,
+                "gf": 0,
+                "gc": 0,
+                "dg": 0
+            }
+
+        if equipo2 not in tabla:
+
+            tabla[equipo2] = {
+
+                "nombre": equipo2,
+                "puntos": 0,
+                "gf": 0,
+                "gc": 0,
+                "dg": 0
+            }
+
+        # =========================================
+        # RESULTADOS
+        # =========================================
+
+        if (
+            partido["goles1"] is not None and
+            partido["goles2"] is not None
+        ):
+
+            goles1 = partido["goles1"]
+            goles2 = partido["goles2"]
+
+            # GOLES
+
+            tabla[equipo1]["gf"] += goles1
+            tabla[equipo1]["gc"] += goles2
+
+            tabla[equipo2]["gf"] += goles2
+            tabla[equipo2]["gc"] += goles1
+
+            # DIFERENCIA GOLES
+
+            tabla[equipo1]["dg"] = (
+                tabla[equipo1]["gf"] -
+                tabla[equipo1]["gc"]
+            )
+
+            tabla[equipo2]["dg"] = (
+                tabla[equipo2]["gf"] -
+                tabla[equipo2]["gc"]
+            )
+
+            # PUNTOS
+
+            if goles1 > goles2:
+
+                tabla[equipo1]["puntos"] += 2
+
+            elif goles2 > goles1:
+
+                tabla[equipo2]["puntos"] += 2
+
+            else:
+
+                tabla[equipo1]["puntos"] += 1
+                tabla[equipo2]["puntos"] += 1
+
+    # =============================================
+    # ORDENAR TABLAS
+    # =============================================
+
+    tablas_finales = []
+
+    for clave, datos in tablas.items():
+
+        equipos_ordenados = sorted(
+
+            datos["equipos"].values(),
+
+            key=lambda x: (
+                x["puntos"],
+                x["dg"],
+                x["gf"]
+            ),
+
+            reverse=True
+        )
+
+        tablas_finales.append({
+
+            "info": datos["info"],
+            "equipos": equipos_ordenados
+        })
+
+    # =============================================
+    # RETURN
+    # =============================================
 
     return render_template(
+
         "fixture.html",
+
         partidos=partidos,
-        fixtures_grupos=fixtures_grupos,
-        tablas_posiciones=tablas_posiciones
+
+        tablas=tablas_finales
+    )
+
+# =====================================================
+# TABLAS
+# =====================================================
+
+@aplicacion.route("/tablas")
+def tablas():
+
+    partidos = []
+
+    documentos = db.collection("partidos").get()
+
+    for doc in documentos:
+
+        partido = doc.to_dict()
+
+        partido["id"] = doc.id
+
+        partidos.append(partido)
+
+    tablas = {}
+
+    for partido in partidos:
+
+        deporte = partido.get("deporte", "Sin deporte")
+
+        categoria = partido.get("categoria", "Sin categoria")
+
+        tipo = partido.get("tipo", "Sin tipo")
+
+        zona = partido.get("zona", "Sin zona")
+
+        clave = f"{deporte}-{categoria}-{tipo}-{zona}"
+
+        if clave not in tablas:
+
+            tablas[clave] = {
+
+                "info": {
+
+                    "deporte": deporte,
+                    "categoria": categoria,
+                    "tipo": tipo,
+                    "zona": zona
+                },
+
+                "equipos": {}
+            }
+
+        tabla = tablas[clave]["equipos"]
+
+        equipo1 = partido["equipo1"]
+        equipo2 = partido["equipo2"]
+
+        if equipo1 not in tabla:
+
+            tabla[equipo1] = {
+
+                "nombre": equipo1,
+                "puntos": 0,
+                "gf": 0,
+                "gc": 0,
+                "dg": 0
+            }
+
+        if equipo2 not in tabla:
+
+            tabla[equipo2] = {
+
+                "nombre": equipo2,
+                "puntos": 0,
+                "gf": 0,
+                "gc": 0,
+                "dg": 0
+            }
+
+        if (
+            partido["goles1"] is not None and
+            partido["goles2"] is not None
+        ):
+
+            goles1 = partido["goles1"]
+            goles2 = partido["goles2"]
+
+            tabla[equipo1]["gf"] += goles1
+            tabla[equipo1]["gc"] += goles2
+
+            tabla[equipo2]["gf"] += goles2
+            tabla[equipo2]["gc"] += goles1
+
+            tabla[equipo1]["dg"] = (
+                tabla[equipo1]["gf"] -
+                tabla[equipo1]["gc"]
+            )
+
+            tabla[equipo2]["dg"] = (
+                tabla[equipo2]["gf"] -
+                tabla[equipo2]["gc"]
+            )
+
+            if goles1 > goles2:
+
+                tabla[equipo1]["puntos"] += 2
+
+            elif goles2 > goles1:
+
+                tabla[equipo2]["puntos"] += 2
+
+            else:
+
+                tabla[equipo1]["puntos"] += 1
+                tabla[equipo2]["puntos"] += 1
+
+    tablas_finales = []
+
+    for clave, datos in tablas.items():
+
+        equipos_ordenados = sorted(
+
+            datos["equipos"].values(),
+
+            key=lambda x: (
+                x["puntos"],
+                x["dg"],
+                x["gf"]
+            ),
+
+            reverse=True
+        )
+
+        tablas_finales.append({
+
+            "info": datos["info"],
+            "equipos": equipos_ordenados
+        })
+
+    return render_template(
+
+        "tablas.html",
+
+        tablas=tablas_finales
     )
 
 # =====================================================
@@ -166,21 +463,58 @@ def fixture():
 @aplicacion.route("/crear_partido", methods=["POST"])
 def crear_partido():
 
-    if not session.get("es_admin"):
+    if session.get("es_admin") != True:
+
         flash("No tenes permisos")
+
         return redirect("/fixture")
 
+    # =============================================
+    # DATOS
+    # =============================================
+
+    equipo1 = request.form["equipo1"]
+    equipo2 = request.form["equipo2"]
+
+    deporte = request.form["deporte"]
+
+    categoria = request.form["categoria"]
+
+    tipo = request.form["tipo"]
+
+    cancha = request.form["cancha"]
+
+    zona = request.form.get("zona")
+
+    horario = request.form["horario"]
+
+    # =============================================
+    # GUARDAR EN FIREBASE
+    # =============================================
+
     db.collection("partidos").add({
-        "equipo1": request.form["equipo1"],
-        "equipo2": request.form["equipo2"],
-        "deporte": request.form["deporte"],
-        "rama": request.form["rama"],
-        "horario": request.form["horario"],
+
+        "equipo1": equipo1,
+        "equipo2": equipo2,
+
+        "deporte": deporte,
+
+        "categoria": categoria,
+
+        "tipo": tipo,
+
+        "cancha": cancha,
+
+        "zona": zona,
+
+        "horario": horario,
+
         "goles1": None,
         "goles2": None
     })
 
     flash("Partido creado")
+
     return redirect("/fixture")
 
 # =====================================================
@@ -219,7 +553,7 @@ def eliminar_partido(id):
     return redirect("/fixture")
 
 # =====================================================
-# 🍔 CANTINA - VER PRODUCTOS
+# CANTINA - VER PRODUCTOS
 # =====================================================
 
 @aplicacion.route("/cantina")
@@ -230,14 +564,14 @@ def cantina():
     docs = db.collection("cantina").get()
 
     for doc in docs:
-        p = doc.to_dict()
-        p["id"] = doc.id
-        productos.append(p)
+        item = doc.to_dict()
+        item["id"] = doc.id
+        productos.append(item)
 
     return render_template("cantina.html", productos=productos)
 
 # =====================================================
-# 🍔 CANTINA - AGREGAR PRODUCTO (ADMIN)
+# AGREGAR PRODUCTO (ADMIN)
 # =====================================================
 
 @aplicacion.route("/cantina/agregar", methods=["POST"])
@@ -247,16 +581,19 @@ def agregar_producto():
         flash("No tenes permisos")
         return redirect("/cantina")
 
+    nombre = request.form["nombre"]
+    precio = request.form["precio"]
+
     db.collection("cantina").add({
-        "nombre": request.form["nombre"],
-        "precio": int(request.form["precio"])
+        "nombre": nombre,
+        "precio": int(precio)
     })
 
-    flash("Producto agregado")
+    flash("Producto agregado correctamente")
     return redirect("/cantina")
 
 # =====================================================
-# 🍔 CANTINA - ELIMINAR PRODUCTO (ADMIN)
+# ELIMINAR PRODUCTO (ADMIN)
 # =====================================================
 
 @aplicacion.route("/cantina/eliminar/<id>", methods=["POST"])
