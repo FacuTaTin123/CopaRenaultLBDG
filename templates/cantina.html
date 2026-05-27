@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<h1>Cantina</h1>
+
+<!-- ================= ADMIN ================= -->
+{% if es_admin %}
+
+<form method="POST" action="/cantina/agregar">
+
+  <input type="text" name="nombre" placeholder="Producto" required>
+  <input type="number" name="precio" placeholder="Precio" required>
+
+  <button type="submit">Agregar</button>
+
+</form>
+
+{% endif %}
+
+<hr>
+
+<!-- ================= PRODUCTOS ================= -->
+
+{% for p in productos %}
+
+<div class="card">
+
+  <h3>{{ p.nombre }}</h3>
+  <p>$ {{ p.precio }}</p>
+
+  {% if es_admin %}
+
+  <form method="POST" action="/cantina/eliminar/{{ p.id }}">
+    <button>Eliminar</button>
+  </form>
+
+  {% endif %}
+
+</div>
+
+{% endfor %}
+
+{% endblock %}

@@ -39,19 +39,8 @@
     id="formPartido"
   >
 
-    <input
-      type="text"
-      name="equipo1"
-      placeholder="Equipo 1"
-      required
-    >
-
-    <input
-      type="text"
-      name="equipo2"
-      placeholder="Equipo 2"
-      required
-    >
+    <input type="text" name="equipo1" placeholder="Equipo 1" required>
+    <input type="text" name="equipo2" placeholder="Equipo 2" required>
 
     <!-- ========================= -->
     <!-- DEPORTE -->
@@ -60,6 +49,7 @@
       <p>Deporte</p>
 
       <div class="toggle-group">
+
         <label class="toggle">
           <input type="radio" name="deporte" value="Futbol" required>
           <span>Fútbol</span>
@@ -74,6 +64,7 @@
           <input type="radio" name="deporte" value="Voley">
           <span>Vóley</span>
         </label>
+
       </div>
     </div>
 
@@ -84,6 +75,7 @@
       <p>Categoría</p>
 
       <div class="toggle-group">
+
         <label class="toggle">
           <input type="radio" name="categoria" value="Menor" required>
           <span>Menor</span>
@@ -98,6 +90,7 @@
           <input type="radio" name="categoria" value="Mayor">
           <span>Mayor</span>
         </label>
+
       </div>
     </div>
 
@@ -108,6 +101,7 @@
       <p>Rama</p>
 
       <div class="toggle-group">
+
         <label class="toggle">
           <input type="radio" name="rama" value="Masculino" required>
           <span>Masculino</span>
@@ -117,16 +111,18 @@
           <input type="radio" name="rama" value="Femenino">
           <span>Femenino</span>
         </label>
+
       </div>
     </div>
 
     <!-- ========================= -->
-    <!-- CANCHA (NUEVO) -->
+    <!-- CANCHA -->
     <!-- ========================= -->
     <div class="slider-group">
       <p>Cancha</p>
 
       <div class="toggle-group">
+
         <label class="toggle">
           <input type="radio" name="cancha" value="1" required>
           <span>Cancha 1</span>
@@ -146,19 +142,13 @@
           <input type="radio" name="cancha" value="4">
           <span>Cancha 4</span>
         </label>
+
       </div>
     </div>
 
-    <input
-      type="time"
-      name="horario"
-      required
-    >
+    <input type="time" name="horario" required>
 
-    <button
-      class="btn btn-primary"
-      type="submit"
-    >
+    <button class="btn btn-primary" type="submit">
       Crear Partido
     </button>
 
@@ -228,11 +218,8 @@
 
           <div class="match-actions">
 
-            <form
-              method="POST"
-              action="{{ url_for('resultado', id=partido.id) }}"
-              style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;"
-            >
+            <form method="POST" action="{{ url_for('resultado', id=partido.id) }}"
+              style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
 
               <input type="number" name="goles1" placeholder="Goles 1" required>
               <input type="number" name="goles2" placeholder="Goles 2" required>
@@ -243,10 +230,8 @@
 
             </form>
 
-            <form
-              method="POST"
-              action="{{ url_for('eliminar_partido', partido_id=partido.id) }}"
-            >
+            <form method="POST"
+              action="{{ url_for('eliminar_partido', id=partido.id) }}">
 
               <button class="btn" type="submit">
                 Eliminar
@@ -273,7 +258,7 @@
 </section>
 
 <!-- ================================================= -->
-<!-- ESTILOS TOGGLE -->
+<!-- ESTILOS -->
 <!-- ================================================= -->
 
 <style>
@@ -290,10 +275,6 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.toggle {
-  cursor: pointer;
 }
 
 .toggle input {
@@ -322,38 +303,49 @@
 </style>
 
 <!-- ================================================= -->
-<!-- LÓGICA JS -->
+<!-- JS CORREGIDO -->
 <!-- ================================================= -->
 
 <script>
+
 const deporteInputs = document.querySelectorAll('input[name="deporte"]');
 const categoriaInputs = document.querySelectorAll('input[name="categoria"]');
 const ramaInputs = document.querySelectorAll('input[name="rama"]');
 
-function setDisabled(inputs, conditionFn) {
-  inputs.forEach(input => {
-    input.disabled = !conditionFn(input.value);
-    if (input.disabled) input.checked = false;
+function reset(inputs) {
+  inputs.forEach(i => {
+    i.disabled = false;
+  });
+}
+
+function disableOnly(inputs, allowed) {
+  inputs.forEach(i => {
+    const ok = allowed.includes(i.value);
+    i.disabled = !ok;
+    if (!ok) i.checked = false;
   });
 }
 
 function actualizarRestricciones() {
+
   const deporte = document.querySelector('input[name="deporte"]:checked')?.value;
 
-  if (!deporte) return;
+  // reset siempre primero
+  reset(categoriaInputs);
+  reset(ramaInputs);
 
   if (deporte === "Basquet") {
-    setDisabled(categoriaInputs, v => v === "Mayor");
-    setDisabled(ramaInputs, v => v === "Masculino");
-  } else {
-    setDisabled(categoriaInputs, () => true);
-    setDisabled(ramaInputs, () => true);
+    disableOnly(categoriaInputs, ["Mayor"]);
+    disableOnly(ramaInputs, ["Masculino"]);
   }
+
+  // Futbol y Voley -> todo habilitado
 }
 
 deporteInputs.forEach(input => {
   input.addEventListener("change", actualizarRestricciones);
 });
+
 </script>
 
 {% endblock %}
