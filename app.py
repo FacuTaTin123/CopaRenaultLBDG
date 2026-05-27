@@ -21,89 +21,6 @@ if len(admin) == 0:
     })
 
 # =====================================================
-# DATOS VISUALES
-# =====================================================
-
-fixtures_grupos = [
-    {
-        "deporte": "Futbol",
-        "grupos": [
-            {
-                "nombre": "Grupo A",
-                "equipos": ["4A", "4B", "5A", "5B"]
-            },
-            {
-                "nombre": "Grupo B",
-                "equipos": ["6A", "6B", "7A", "7B"]
-            }
-        ]
-    }
-]
-
-def armar_tabla_posiciones(partidos):
-    equipos = {}
-
-    for partido in partidos:
-        equipo1 = partido.get("equipo1")
-        equipo2 = partido.get("equipo2")
-
-        if not equipo1 or not equipo2:
-            continue
-
-        for equipo in (equipo1, equipo2):
-            equipos.setdefault(equipo, {
-                "equipo": equipo,
-                "pj": 0,
-                "g": 0,
-                "e": 0,
-                "p": 0,
-                "gf": 0,
-                "gc": 0,
-                "pts": 0
-            })
-
-        goles1 = partido.get("goles1")
-        goles2 = partido.get("goles2")
-
-        if goles1 is None or goles2 is None:
-            continue
-
-        goles1 = int(goles1)
-        goles2 = int(goles2)
-
-        equipos[equipo1]["pj"] += 1
-        equipos[equipo2]["pj"] += 1
-        equipos[equipo1]["gf"] += goles1
-        equipos[equipo1]["gc"] += goles2
-        equipos[equipo2]["gf"] += goles2
-        equipos[equipo2]["gc"] += goles1
-
-        if goles1 > goles2:
-            equipos[equipo1]["g"] += 1
-            equipos[equipo2]["p"] += 1
-            equipos[equipo1]["pts"] += 3
-        elif goles2 > goles1:
-            equipos[equipo2]["g"] += 1
-            equipos[equipo1]["p"] += 1
-            equipos[equipo2]["pts"] += 3
-        else:
-            equipos[equipo1]["e"] += 1
-            equipos[equipo2]["e"] += 1
-            equipos[equipo1]["pts"] += 1
-            equipos[equipo2]["pts"] += 1
-
-    return sorted(
-        equipos.values(),
-        key=lambda equipo: (
-            equipo["pts"],
-            equipo["gf"] - equipo["gc"],
-            equipo["gf"],
-            equipo["equipo"]
-        ),
-        reverse=True
-    )
-
-# =====================================================
 # CONTEXTO GLOBAL
 # =====================================================
 
@@ -198,6 +115,84 @@ def logout():
     return redirect("/")
 
 # =====================================================
+# HELPER: ARMAR TABLAS
+# =====================================================
+
+def armar_tablas(partidos):
+
+    tablas = {}
+
+    for partido in partidos:
+
+        deporte = partido.get("deporte", "Sin deporte")
+        categoria = partido.get("categoria", "Sin categoria")
+        tipo = partido.get("tipo", "Sin tipo")
+        zona = partido.get("zona", "Sin zona")
+
+        clave = f"{deporte}-{categoria}-{tipo}-{zona}"
+
+        if clave not in tablas:
+
+            tablas[clave] = {
+                "info": {
+                    "deporte": deporte,
+                    "categoria": categoria,
+                    "tipo": tipo,
+                    "zona": zona
+                },
+                "equipos": {}
+            }
+
+        tabla = tablas[clave]["equipos"]
+
+        equipo1 = partido["equipo1"]
+        equipo2 = partido["equipo2"]
+
+        if equipo1 not in tabla:
+            tabla[equipo1] = {"nombre": equipo1, "puntos": 0, "gf": 0, "gc": 0, "dg": 0}
+
+        if equipo2 not in tabla:
+            tabla[equipo2] = {"nombre": equipo2, "puntos": 0, "gf": 0, "gc": 0, "dg": 0}
+
+        if partido["goles1"] is not None and partido["goles2"] is not None:
+
+            goles1 = partido["goles1"]
+            goles2 = partido["goles2"]
+
+            tabla[equipo1]["gf"] += goles1
+            tabla[equipo1]["gc"] += goles2
+            tabla[equipo2]["gf"] += goles2
+            tabla[equipo2]["gc"] += goles1
+
+            tabla[equipo1]["dg"] = tabla[equipo1]["gf"] - tabla[equipo1]["gc"]
+            tabla[equipo2]["dg"] = tabla[equipo2]["gf"] - tabla[equipo2]["gc"]
+
+            if goles1 > goles2:
+                tabla[equipo1]["puntos"] += 2
+            elif goles2 > goles1:
+                tabla[equipo2]["puntos"] += 2
+            else:
+                tabla[equipo1]["puntos"] += 1
+                tabla[equipo2]["puntos"] += 1
+
+    tablas_finales = []
+
+    for clave, datos in tablas.items():
+
+        equipos_ordenados = sorted(
+            datos["equipos"].values(),
+            key=lambda x: (x["puntos"], x["dg"], x["gf"]),
+            reverse=True
+        )
+
+        tablas_finales.append({
+            "info": datos["info"],
+            "equipos": equipos_ordenados
+        })
+
+    return tablas_finales
+
+# =====================================================
 # FIXTURE
 # =====================================================
 
@@ -206,18 +201,42 @@ def fixture():
 
     partidos = []
 
-    docs = db.collection("partidos").get()
+    documentos = db.collection("partidos").get()
 
-    for doc in docs:
-        p = doc.to_dict()
-        p["id"] = doc.id
-        partidos.append(p)
+    for doc in documentos:
+        partido = doc.to_dict()
+        partido["id"] = doc.id
+        partidos.append(partido)
+
+    tablas_finales = armar_tablas(partidos)
 
     return render_template(
         "fixture.html",
         partidos=partidos,
-        fixtures_grupos=fixtures_grupos,
-        tabla_posiciones=armar_tabla_posiciones(partidos)
+        tablas=tablas_finales
+    )
+
+# =====================================================
+# TABLAS
+# =====================================================
+
+@aplicacion.route("/tablas")
+def tablas():
+
+    partidos = []
+
+    documentos = db.collection("partidos").get()
+
+    for doc in documentos:
+        partido = doc.to_dict()
+        partido["id"] = doc.id
+        partidos.append(partido)
+
+    tablas_finales = armar_tablas(partidos)
+
+    return render_template(
+        "tablas.html",
+        tablas=tablas_finales
     )
 
 # =====================================================
@@ -227,18 +246,28 @@ def fixture():
 @aplicacion.route("/crear_partido", methods=["POST"])
 def crear_partido():
 
-    if not session.get("es_admin"):
+    if session.get("es_admin") != True:
         flash("No tenes permisos")
         return redirect("/fixture")
 
+    equipo1 = request.form["equipo1"]
+    equipo2 = request.form["equipo2"]
+    deporte = request.form["deporte"]
+    categoria = request.form["categoria"]
+    tipo = request.form["tipo"]
+    cancha = request.form["cancha"]
+    zona = request.form.get("zona")
+    horario = request.form["horario"]
+
     db.collection("partidos").add({
-        "equipo1": request.form["equipo1"],
-        "equipo2": request.form["equipo2"],
-        "deporte": request.form["deporte"],
-        "categoria": request.form["categoria"],
-        "rama": request.form["rama"],
-        "cancha": request.form["cancha"],
-        "horario": request.form["horario"],
+        "equipo1": equipo1,
+        "equipo2": equipo2,
+        "deporte": deporte,
+        "categoria": categoria,
+        "tipo": tipo,
+        "cancha": cancha,
+        "zona": zona,
+        "horario": horario,
         "goles1": None,
         "goles2": None
     })
@@ -282,7 +311,7 @@ def eliminar_partido(id):
     return redirect("/fixture")
 
 # =====================================================
-# 🍔 CANTINA - VER PRODUCTOS
+# CANTINA - VER PRODUCTOS
 # =====================================================
 
 @aplicacion.route("/cantina")
@@ -293,14 +322,14 @@ def cantina():
     docs = db.collection("cantina").get()
 
     for doc in docs:
-        p = doc.to_dict()
-        p["id"] = doc.id
-        productos.append(p)
+        item = doc.to_dict()
+        item["id"] = doc.id
+        productos.append(item)
 
     return render_template("cantina.html", productos=productos)
 
 # =====================================================
-# 🍔 CANTINA - AGREGAR PRODUCTO (ADMIN)
+# AGREGAR PRODUCTO (ADMIN)
 # =====================================================
 
 @aplicacion.route("/cantina/agregar", methods=["POST"])
@@ -310,16 +339,19 @@ def agregar_producto():
         flash("No tenes permisos")
         return redirect("/cantina")
 
+    nombre = request.form["nombre"]
+    precio = request.form["precio"]
+
     db.collection("cantina").add({
-        "nombre": request.form["nombre"],
-        "precio": int(request.form["precio"])
+        "nombre": nombre,
+        "precio": int(precio)
     })
 
-    flash("Producto agregado")
+    flash("Producto agregado correctamente")
     return redirect("/cantina")
 
 # =====================================================
-# 🍔 CANTINA - ELIMINAR PRODUCTO (ADMIN)
+# ELIMINAR PRODUCTO (ADMIN)
 # =====================================================
 
 @aplicacion.route("/cantina/eliminar/<id>", methods=["POST"])
