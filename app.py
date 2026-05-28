@@ -127,9 +127,9 @@ def armar_tablas(partidos):
         deporte = partido.get("deporte", "Sin deporte")
         categoria = partido.get("categoria", "Sin categoria")
         tipo = partido.get("tipo", "Sin tipo")
-        zona = partido.get("zona", "Sin zona")
+        grupo = partido.get("grupo", "Sin grupo")
 
-        clave = f"{deporte}-{categoria}-{tipo}-{zona}"
+        clave = f"{deporte}-{categoria}-{tipo}-{grupo}"
 
         if clave not in tablas:
 
@@ -138,7 +138,7 @@ def armar_tablas(partidos):
                     "deporte": deporte,
                     "categoria": categoria,
                     "tipo": tipo,
-                    "zona": zona
+                    "grupo": grupo
                 },
                 "equipos": {}
             }
@@ -149,10 +149,10 @@ def armar_tablas(partidos):
         equipo2 = partido["equipo2"]
 
         if equipo1 not in tabla:
-            tabla[equipo1] = {"nombre": equipo1, "puntos": 0, "gf": 0, "gc": 0, "dg": 0}
+            tabla[equipo1] = {"nombre": equipo1, "puntos": 0,'gf':0,'gc':0,'dg':0, "g": 0, "e": 0, "p": 0}
 
         if equipo2 not in tabla:
-            tabla[equipo2] = {"nombre": equipo2, "puntos": 0, "gf": 0, "gc": 0, "dg": 0}
+            tabla[equipo2] = {"nombre": equipo2, "puntos": 0,'gf':0,'gc':0,'dg':0, "g": 0, "e": 0, "p": 0}
 
         if partido["goles1"] is not None and partido["goles2"] is not None:
 
@@ -168,12 +168,18 @@ def armar_tablas(partidos):
             tabla[equipo2]["dg"] = tabla[equipo2]["gf"] - tabla[equipo2]["gc"]
 
             if goles1 > goles2:
-                tabla[equipo1]["puntos"] += 2
+                tabla[equipo1]["puntos"] += 3
+                tabla[equipo1]["g"] += 1
+                tabla[equipo2]["p"] += 1
             elif goles2 > goles1:
-                tabla[equipo2]["puntos"] += 2
+                tabla[equipo2]["puntos"] += 3
+                tabla[equipo2]["g"] += 1
+                tabla[equipo1]["p"] += 1
             else:
                 tabla[equipo1]["puntos"] += 1
                 tabla[equipo2]["puntos"] += 1
+                tabla[equipo1]["e"] += 1
+                tabla[equipo2]["e"] += 1
 
     tablas_finales = []
 
@@ -256,7 +262,7 @@ def crear_partido():
     categoria = request.form["categoria"]
     tipo = request.form["tipo"]
     cancha = request.form["cancha"]
-    zona = request.form.get("zona")
+    grupo = request.form.get("grupo")
     horario = request.form["horario"]
 
     db.collection("partidos").add({
@@ -266,7 +272,7 @@ def crear_partido():
         "categoria": categoria,
         "tipo": tipo,
         "cancha": cancha,
-        "zona": zona,
+        "grupo": grupo,
         "horario": horario,
         "goles1": None,
         "goles2": None

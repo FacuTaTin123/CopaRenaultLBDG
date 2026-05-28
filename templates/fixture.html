@@ -23,10 +23,12 @@
 <div class="fixture-tabs" aria-label="Secciones del fixture">
   <input type="radio" name="fixture_tab" id="tab-partidos" checked>
   <input type="radio" name="fixture_tab" id="tab-tabla">
+  <input type="radio" name="fixture_tab" id="tab-mapa">
 
   <div class="fixture-tab-labels">
     <label for="tab-partidos">Partidos</label>
     <label for="tab-tabla">Tabla</label>
+    <label for="tab-mapa">Mapa</label>
   </div>
 
 <!-- ================================================= -->
@@ -89,10 +91,10 @@
       </div>
     </div>
 
-    <!-- ZONA -->
+    <!-- GRUPO -->
     <div class="slider-group">
-      <p>Zona</p>
-      <input type="text" name="zona" placeholder="Ej: A, B, C..." required>
+      <p>Grupo</p>
+      <input type="text" name="grupo" placeholder="Ej: A, B, C..." required>
     </div>
 
     <!-- TIPO -->
@@ -129,6 +131,22 @@
         <label class="toggle">
           <input type="radio" name="cancha" value="4">
           <span>Cancha 4</span>
+        </label>
+        <label class="toggle">
+          <input type="radio" name="cancha" value="5">
+          <span>Cancha 5</span>
+        </label>
+        <label class="toggle">
+          <input type="radio" name="cancha" value="6">
+          <span>Cancha 6</span>
+        </label>
+        <label class="toggle">
+          <input type="radio" name="cancha" value="7">
+          <span>Cancha 7</span>
+        </label>
+        <label class="toggle">
+          <input type="radio" name="cancha" value="8">
+          <span>Cancha 8</span>
         </label>
       </div>
     </div>
@@ -309,7 +327,7 @@
           {{ tabla.info.deporte }} -
           {{ tabla.info.categoria }} -
           {{ tabla.info.tipo }} -
-          Zona {{ tabla.info.zona }}
+          Grupo {{ tabla.info.grupo }}
         </h3>
 
         <div style="overflow-x:auto;">
@@ -347,6 +365,60 @@
 
     {% endif %}
 
+  </section>
+
+  <!-- ================================================= -->
+  <!-- MAPA DE CANCHAS -->
+  <!-- ================================================= -->
+
+  <section class="fixture-panel tab-content tab-content-mapa">
+    <div class="map-grid">
+
+      <article class="map-card">
+        <img
+          src="{{ url_for('static', filename='img/Cancha de Basquet.svg') }}"
+          alt="Cancha de basquet"
+        >
+        <div class="map-card-info">
+          <h3>Basquet</h3>
+          <p>Cupula</p>
+        </div>
+      </article>
+
+      <article class="map-card">
+        <img
+          src="{{ url_for('static', filename='img/Canchas de Voley.svg') }}"
+          alt="Canchas de voley"
+        >
+        <div class="map-card-info">
+          <h3>Voley</h3>
+          <p>Abajo</p>
+        </div>
+      </article>
+
+      <article class="map-card">
+        <img
+          src="{{ url_for('static', filename='img/Canchas de Futbol 1.svg') }}"
+          alt="Cancha de futbol 1"
+        >
+        <div class="map-card-info">
+          <h3>Futbol(1-4)</h3>
+          <p>Abajo</p>
+        </div>
+      </article>
+
+      <article class="map-card">
+        <img
+          src="{{ url_for('static', filename='img/Canchas de Futbol 2.svg') }}"
+          alt="Cancha de futbol 2"
+        >
+        <div class="map-card-info">
+          <h3>Futbol(5-8)</h3>
+          <p>Arriba</p>
+        </div>
+      </article>
+
+    </div>
   </section>
 
 </div>
@@ -387,7 +459,8 @@
 }
 
 #tab-partidos:checked ~ .fixture-tab-labels label[for="tab-partidos"],
-#tab-tabla:checked ~ .fixture-tab-labels label[for="tab-tabla"] {
+#tab-tabla:checked ~ .fixture-tab-labels label[for="tab-tabla"],
+#tab-mapa:checked ~ .fixture-tab-labels label[for="tab-mapa"] {
   background: #b9dbf7;
 }
 
@@ -396,12 +469,73 @@
 }
 
 #tab-partidos:checked ~ .tab-content-partidos,
-#tab-tabla:checked ~ .tab-content-tabla {
+#tab-tabla:checked ~ .tab-content-tabla,
+#tab-mapa:checked ~ .tab-content-mapa {
   display: grid;
 }
 
 .tab-content-tabla {
   max-width: 900px;
+}
+
+.tab-content-mapa {
+  max-width: 1280px;
+}
+
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 32px;
+}
+
+.map-card {
+  overflow: hidden;
+  border: 3px solid #242424;
+  border-radius: 10px;
+  background: #f7f7f7;
+  box-shadow: 8px 9px 0 #242424;
+}
+
+.map-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-bottom: 3px solid #242424;
+}
+
+.map-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 24px;
+}
+
+.map-card-info h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+}
+
+.map-card-info p {
+  margin: 0;
+  padding: 7px 12px;
+  border: 2px solid #242424;
+  border-radius: 999px;
+  background: #ffdd56;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+@media (max-width: 620px) {
+  .map-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-card img {
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .slider-group {
@@ -477,6 +611,7 @@
 const deporteInputs = document.querySelectorAll('input[name="deporte"]');
 const categoriaInputs = document.querySelectorAll('input[name="categoria"]');
 const tipoInputs = document.querySelectorAll('input[name="tipo"]');
+const canchaInputs = document.querySelectorAll('input[name="cancha"]');
 
 function reset(inputs) {
   inputs.forEach(i => { i.disabled = false; });
@@ -488,19 +623,54 @@ function disableOnly(inputs, allowed) {
     i.disabled = !ok;
     if (!ok) i.checked = false;
   });
+
+  const haySeleccionValida = Array.from(inputs).some(i => i.checked && !i.disabled);
+  if (!haySeleccionValida) {
+    const primeraOpcion = Array.from(inputs).find(i => allowed.includes(i.value));
+    if (primeraOpcion) primeraOpcion.checked = true;
+  }
 }
 
 function actualizarRestricciones() {
   const deporte = document.querySelector('input[name="deporte"]:checked')?.value;
+  const categoria = document.querySelector('input[name="categoria"]:checked')?.value;
+  const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
+
   reset(categoriaInputs);
   reset(tipoInputs);
+  reset(canchaInputs);
+
   if (deporte === "Basquet") {
     disableOnly(categoriaInputs, ["Mayor"]);
     disableOnly(tipoInputs, ["Masculino"]);
+    disableOnly(canchaInputs, ["1"]);
+  }
+
+  if (deporte === "Voley") {
+    disableOnly(canchaInputs, ["1", "2", "3", "4"]);
+  }
+
+  if (deporte === "Futbol" && categoria === "Menor") {
+    disableOnly(canchaInputs, ["1", "2", "3"]);
+  }
+
+  if (deporte === "Futbol" && categoria === "Intermedia") {
+    disableOnly(canchaInputs, ["1", "2", "3", "4"]);
+  }
+  if (deporte === "Futbol" && tipo === "Femenino") {
+    disableOnly(canchaInputs, ["1", "2"]);
   }
 }
 
 deporteInputs.forEach(input => {
+  input.addEventListener("change", actualizarRestricciones);
+});
+
+categoriaInputs.forEach(input => {
+  input.addEventListener("change", actualizarRestricciones);
+});
+
+tipoInputs.forEach(input => {
   input.addEventListener("change", actualizarRestricciones);
 });
 

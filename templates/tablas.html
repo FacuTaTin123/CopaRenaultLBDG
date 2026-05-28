@@ -17,7 +17,7 @@
   <input
     type="text"
     id="busqueda"
-    placeholder="Buscar deporte, categoría, tipo o zona..."
+    placeholder="Buscar deporte, categoría, tipo o grupo..."
   >
 
 </div>
@@ -36,7 +36,7 @@
     {{ tabla.info.deporte }}
     {{ tabla.info.categoria }}
     {{ tabla.info.tipo }}
-    {{ tabla.info.zona }}
+    {{ tabla.info.grupo }}
   "
 >
 
@@ -48,7 +48,7 @@
     -
     {{ tabla.info.tipo }}
     -
-    Zona {{ tabla.info.zona }}
+    Grupo {{ tabla.info.grupo }}
 
   </h2>
 
@@ -62,8 +62,9 @@
 
           <th>Equipo</th>
           <th>PTS</th>
-          <th>GF</th>
-          <th>GC</th>
+          <th>G</th>
+          <th>E</th>
+          <th>P</th>
           <th>DG</th>
 
         </tr>
@@ -80,9 +81,11 @@
 
           <td>{{ equipo.puntos }}</td>
 
-          <td>{{ equipo.gf }}</td>
+          <td>{{ equipo.g }}</td>
 
-          <td>{{ equipo.gc }}</td>
+          <td>{{ equipo.e }}</td>
+
+          <td>{{ equipo.p }}</td>
 
           <td>{{ equipo.dg }}</td>
 
